@@ -15,12 +15,12 @@ npm install valform
 ```
 ### Usage
 ```javascript
-import { ValForm } from './validation/validation';
+import valForm from 'valform';
 ```
 ### Configuration
 #### HTML "data" attributes
 ###### data-val-rules
-ValForm will work out of the box. The only requirement is to place "data-val-rules" attribute to your inputs with at least 1 rule defined, e.g.:
+valForm will work out of the box. The only requirement is to place "data-val-rules" attribute to your inputs with at least 1 rule defined, e.g.:
 ```html
 <input type="text" name="address" data-val-rules="required">
 ```
@@ -51,7 +51,7 @@ There might be cases when you need to validate two fields against each other, e.
 ```
 
 #### Config object
-You can configure ValForm with a simple object:
+You can configure valForm with a simple object:
 ```javascript
 const valConfig = {
     formId: 'my-form',
@@ -62,7 +62,7 @@ const valConfig = {
     dateFormat: 'YYYY-mm-dd',
 }
 
-ValForm.init(valConfig)
+valForm.init(valConfig)
 ```
 **formId**: this might be useful if you need to handle more than one form on a page, e.g. you have main form with several fields and then small one for newsletter subscription. In that case you can specify which form shall be handled when submit button is pressed. **NB:** *You can handle validation programmatically...*
 
@@ -85,7 +85,7 @@ ValForm.init(valConfig)
 #### Custom validation methods
 Adding custom methods is straightforward:
 ```javascript
-ValForm.addValMethod('greater_than_6', (field) => {
+valForm.addValMethod('greater_than_6', (field) => {
     return field.value > 6;
 });
 ```
@@ -110,7 +110,7 @@ Most of the time you will only need to work with "value" property.
 
 Naturally, you will need to add then your custom validation message:
 ```javascript
-ValForm.addValMessage('greater_than_6', 'The number must be greater than 6.');
+valForm.addValMessage('greater_than_6', 'The number must be greater than 6.');
 ```
 Use "%s" placeholder to specify field name:
 ```html
@@ -135,8 +135,8 @@ There are two possible additions:
 
 If you need to change this messages you can also use addValMessage method provided to you:
 ```javascript
-ValForm.addValMessage('equals_addition', 'Can be the same'); // changing
-ValForm.addValMessage('equals_addition', ''); // removing
+valForm.addValMessage('equals_addition', 'Can be the same'); // changing
+valForm.addValMessage('equals_addition', ''); // removing
 ```
 
 ##### Validation methods with optional dynamic additions
@@ -152,7 +152,7 @@ ValForm.addValMessage('equals_addition', ''); // removing
 If you want to be in control of the whole validation process you can use "validateForm" method:
 
 ```javascript
-const check = ValForm.validateForm()
+const check = valForm.validateForm()
 ```
 It will return true if the whole form is valid or false if not.
 
@@ -162,14 +162,14 @@ If you pass optional boolean parameter (true) it will return an object containin
 
 There's also a method to partially validate only few fields:
 ```javascript
-const check = ValForm.partialValidation(['name', 'dob'], true)
+const check = valForm.partialValidation(['name', 'dob'], true)
 ```
 First parameter is required and can be either string (if it's one field) or array (more fields). This expects name attributes of the fields. Again, optional second parameter controls if the return value is boolean or the object with passed fields' information.
 
 #### Handling validation of hidden inputs
 There might be cases when you build your own custom inputs using hidden inputs which should be validated. As the input and change events do not apply to hidden input types you can control this with a helper method:
 ```javascript
-const check = ValForm.validateHidden(name, value)
+const check = valForm.validateHidden(name, value)
 ```
 This method accepts two parameters - name attribute and the value of an input. For now this method does not accept third parameter to return the the object with field information. (in progress)
 
@@ -196,12 +196,12 @@ elem.addEventListener('validated', (event) => {
 
 ### Validation methods & examples
 
-###### required
+#### required
 *Checks if the form element is empty.*
 
 **Error message:** 'The %s field is required.'
  
-###### matches
+#### matches
 *Checks if the form element value match the one in parameter.*
 
 **Error message:** 'The %s field does not match the %s field.'
@@ -210,7 +210,7 @@ elem.addEventListener('validated', (event) => {
 
 **Example:** matches[email_verify]
 
-###### min_length
+#### min_length
 *Checks if the form element value is shorter than the parameter.*
 
 **Error message:** 'The %s field must be at least %s characters in length.'
@@ -219,7 +219,7 @@ elem.addEventListener('validated', (event) => {
 
 **Example:** min_length[3]
 
-###### max_length
+#### max_length
 *Checks if the form element value is longer than the parameter.*
 
 **Error message:** 'The %s field must not exceed %s characters in length.'
@@ -228,7 +228,7 @@ elem.addEventListener('validated', (event) => {
 
 **Example:** max_length[32]
 
-###### exact_length
+#### exact_length
 *Checks if the form element value matches the parameter.*
 
 **Error message:** 'The %s field must be exactly %s characters in length.'
@@ -237,7 +237,7 @@ elem.addEventListener('validated', (event) => {
 
 **Example:** exact_length[11]
 
-###### greater_than
+#### greater_than
 *Checks if the form element is greater (non-greedy) than the parameter after using parseFloat.*
 
 **Error message:** 'The %s field must contain a number greater than %s.'
@@ -250,7 +250,7 @@ elem.addEventListener('validated', (event) => {
 * greater_than[20] => must be 21 or more 
 * greater_than[=20] => must be 20 or more
 
-###### less_than
+#### less_than
 *Checks if the form element is less (non-greedy) than the parameter after using parseFloat.*
 
 **Error message:** 'The %s field must contain a number less than %s.'
@@ -263,57 +263,57 @@ elem.addEventListener('validated', (event) => {
 * less_than[20] => can't be 21 or more 
 * less_than[=20] => can't be 20 or more
 
-###### numeric
+#### numeric
 *Checks if form element contains only numeric characters.*
 
 **Error message:**  'The %s field must contain only numbers.'
 
-###### integer
+#### integer
 *Checks if form element value is integer.*
 
 **Error message:** 'The %s field must be an integer.'
 
-###### decimal
+#### decimal
 *Checks if form element value is a decimal.*
 
 **Error message:** 'The %s field must contain a decimal number.'
 
-###### is_natural
+#### is_natural
 *Checks if form element contains anything other than a natural number: 0, 1, 2, 3, etc.*
 
 **Error message:** 'The %s field must contain only positive numbers.'
 
-###### is_natural_no_zero
+#### is_natural_no_zero
 *Checks if form element contains anything other than a natural number, but not zero: 1, 2, 3, etc.*
 
 **Error message:** 'The %s field must contain a number greater than zero.'
 
-###### valid_ip
+#### valid_ip
 *Checks if form element value is valid IP.*
 
 **Error message:** 'The %s field must contain a valid IP.'
 
-###### valid_base64
+#### valid_base64
 *Checks if form element value contains only valid base64 characters.*
 
 **Error message:** 'The %s field must contain a base64 string.'
 
-###### valid_credit_card
+#### valid_credit_card
 *Checks if form element value is valid credit card.*
 
 **Error message:** 'The %s field must contain a valid credit card number.'
 
-###### is_year
+#### is_year
 *Checks if form element value is year - in this case if it contains 4 digits (2019 => valid, 105 => not valid).*
 
 **Error message:** 'The %s field must be a valid year.'
 
-###### year_in_past
+#### year_in_past
 *Checks if form element value is year in the past.*
 
 **Error message:** 'The %s field must be current year or in the past.'
 
-###### years_between
+#### years_between
 *Checks if specified amount of years have passed between this form element value and another specified field in the form.*
 
 **Error message:** 'The %s date must be %s years after %s date.'
@@ -322,7 +322,7 @@ elem.addEventListener('validated', (event) => {
 
 **Example:** years_between[date_of_birth:18]
 
-###### min_years_in_past
+#### min_years_in_past
 *Checks if form element date is at least specified amount of years in the past.*
 
 **Error message:** 'The %s date must be at least %s years in the past.'
@@ -331,7 +331,7 @@ elem.addEventListener('validated', (event) => {
 
 **Example:** min_years_in_past[18]
 
-###### max_years_in_past
+#### max_years_in_past
 *Checks if form element date is no more than specified amount of years in the past.*
 
 **Error message:** 'The %s date must be no more than %s years in the past.'
@@ -340,12 +340,12 @@ elem.addEventListener('validated', (event) => {
 
 **Example:** min_years_in_past[99]
 
-###### valid_date
+#### valid_date
 *Checks if form element value is a valid date.*
 
 **Error message:** 'The %s field must be a valid date.'
 
-###### date_in_past
+#### date_in_past
 *Checks if form element date is in the past (non-greedy).*
 
 **Error message:** 'The %s field must be in the past.'
@@ -364,7 +364,7 @@ let today = new Date();
 today.setUTCHours(0, 0, 0, 0);
 ```
 
-###### date_in_future
+#### date_in_future
 *Checks if form element date is in the future (non-greedy).*
 
 **Error message:** 'The %s field must be in the future.'
@@ -383,7 +383,7 @@ let today = new Date();
 today.setUTCHours(0, 0, 0, 0);
 ```
 
-###### date_greater_than
+#### date_greater_than
 *Checks if form element date is greater (non-greedy) than the date of the specified field.*
 
 **Error message:** 'The %s date must be greater than %s date.'
@@ -396,7 +396,7 @@ today.setUTCHours(0, 0, 0, 0);
 * date_greater_than[date_of_birth] => must be greater than date_of_birth's value
 * date_greater_than[=date_of_birth] => must be equal to or greater than date_of_birth's value
 
-###### date_less_than
+#### date_less_than
 *Checks if form element date is less (non-greedy) than the date of the specified field.*
 
 **Error message:** 'The %s date must be less than %s date.'
@@ -409,22 +409,22 @@ today.setUTCHours(0, 0, 0, 0);
 * date_less_than[inception_date] => must be less than inception_date's value
 * date_less_than[=inception_date] => must be equal to or less than inception_date's value
 
-###### valid_email
+#### valid_email
 *Checks if form element value is a valid email.*
 
 **Error message:** 'The %s field must contain a valid email address.'
 
-###### uk_postcode
+#### uk_postcode
 *Checks if form element value is a UK postcode.*
 
 **Error message:** 'The %s field must be a valid UK postcode.'
 
-###### uk_phonenumber
+#### uk_phonenumber
 *Checks if form element value is a valid UK phone number.*
 
 **Error message:** 'The %s field must be UK phone number'
 
-###### valid_url
+#### valid_url
 *Checks if form element value is a valid URL.*
 
 **Error message:** 'The %s field must contain a valid URL.'

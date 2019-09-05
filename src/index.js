@@ -1,7 +1,7 @@
 import validationHandlers from './_inc/_validationHandlers'
 import formHandlers from './_inc/_formHandlers'
 
-export default {
+exports.valForm = () => {
     init: formHandlers.initializeForm,
     partialValidation: validationHandlers.validatePartially,
     validateForm: validationHandlers.validateForm,
