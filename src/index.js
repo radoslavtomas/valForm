@@ -484,7 +484,9 @@ const createErrorElement = fieldName => {
  */
 const validateField = field => {
     field.visited = true;
-    let fieldElement = document.getElementsByName(field.name)[0];
+	let fieldElement = document.getElementsByName(field.name)[0];
+
+	field.value = fieldElement.value;
 
     // clear old error message
     const oldError = document.querySelector(
