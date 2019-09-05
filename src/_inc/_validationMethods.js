@@ -1,355 +1,370 @@
-import defaultSettings from './_defaults'
-import dateHandlers from './_dateHandlers'
+let defaults = require("./_defaults");
+const dateHandlers = require("./_dateHandlers");
 
-let defaults = defaultSettings.all
-const getDateParts = dateHandlers.getDateParts
-const getDateInstance = dateHandlers.getDateInstance
-const calculateDiffInYears = dateHandlers.calculateDiffInYears
+const getDateParts = dateHandlers.getDateParts;
+const getDateInstance = dateHandlers.getDateInstance;
+const calculateDiffInYears = dateHandlers.calculateDiffInYears;
 
 /**
  * @private
  * Validation methods
  */
-export default {
-    hooks: {
-        required: (field) => {
-            let value = field.value;
 
-            if ((field.type === 'checkbox') || (field.type === 'radio')) {
+let hooks = {
+  required: field => {
+    let value = field.value;
 
-                return (field.checked === true);
-            }
-
-            return (value !== null && value !== '');
-        },
-
-        matches: (field, matchName) => {
-            let matchField = defaults.formFields.filter(obj => obj.name === matchName)[0];
-
-            if (matchField) {
-                return field.value === matchField.value;
-            }
-
-            return false;
-        },
-
-        min_length: (field, length) => {
-            if (!defaults.regex.numericRegex.test(length)) {
-                return false;
-            }
-
-            if(field.value === null) {
-                return false
-            }
-
-            return (field.value.length >= parseInt(length, 10));
-        },
-
-        max_length: (field, length) => {
-            if (!defaults.regex.numericRegex.test(length)) {
-                return false;
-            }
-
-            if(field.value === null) {
-                return false
-            }
-
-            return (field.value.length <= parseInt(length, 10));
-        },
-
-        exact_length: (field, length) => {
-            if (!defaults.regex.numericRegex.test(length)) {
-                return false;
-            }
-
-            if(field.value === null) {
-                return false
-            }
-
-            return (field.value.length === parseInt(length, 10));
-        },
-
-        greater_than: (field, param) => {
-            if (!defaults.regex.decimalRegex.test(field.value)) {
-                return false;
-            }
-
-            let message = defaults.messages.greater_than;
-            let add = defaults.messages.equals_addition;
-
-            if (param.startsWith('=')) {
-                if (message.indexOf(add) === -1) {
-                    defaults.messages.greater_than += ' ' + add;
-                }
-                return (parseFloat(field.value) >= parseFloat(param.substring(1)));
-            }
-
-            if (message.indexOf(add) !== -1) {
-                defaults.messages.greater_than = message.replace(' ' + add, '');
-            }
-
-            return (parseFloat(field.value) > parseFloat(param));
-        },
-
-        less_than: (field, param) => {
-            if (!defaults.regex.decimalRegex.test(field.value)) {
-                return false;
-            }
-
-            let message = defaults.messages.greater_than;
-            let add = defaults.messages.equals_addition;
-
-            if (param.startsWith('=')) {
-                if (message.indexOf(add) === -1) {
-                    defaults.messages.less_than += ' ' + add;
-                }
-                return (parseFloat(field.value) <= parseFloat(param.substring(1)));
-            }
-
-            if (message.indexOf(add) !== -1) {
-                defaults.messages.less_than = message.replace(' ' + add, '');
-            }
-
-            return (parseFloat(field.value) < parseFloat(param));
-        },
-
-        alpha: (field) => {
-            return (defaults.regex.alphaRegex.test(field.value));
-        },
-
-        alpha_numeric: (field) => {
-            return (defaults.regex.alphaNumericRegex.test(field.value));
-        },
-
-        alpha_dash: (field) => {
-            return (defaults.regex.alphaDashRegex.test(field.value));
-        },
-
-        numeric: (field) => {
-            return (defaults.regex.numericRegex.test(field.value));
-        },
-
-        integer: (field) => {
-            return (defaults.regex.integerRegex.test(field.value));
-        },
-
-        decimal: (field) => {
-            return (defaults.regex.decimalRegex.test(field.value));
-        },
-
-        is_natural: (field) => {
-            return (defaults.regex.naturalRegex.test(field.value));
-        },
-
-        is_natural_no_zero: (field) => {
-            return (defaults.regex.naturalNoZeroRegex.test(field.value));
-        },
-
-        valid_ip: (field) => {
-            return (defaults.regex.ipRegex.test(field.value));
-        },
-
-        valid_base64: (field) => {
-            return (defaults.regex.base64Regex.test(field.value));
-        },
-
-        valid_credit_card: (field) => {
-            // Luhn Check Code from https://gist.github.com/4075533
-            // accept only digits, dashes or spaces
-            if (!defaults.regex.numericDashRegex.test(field.value)) return false;
-
-            let nCheck = 0, nDigit = 0, bEven = false;
-            let strippedField = field.value.replace(/\D/g, "");
-
-            for (let n = strippedField.length - 1; n >= 0; n--) {
-                let cDigit = strippedField.charAt(n);
-                nDigit = parseInt(cDigit, 10);
-                if (bEven) {
-                    if ((nDigit *= 2) > 9) nDigit -= 9;
-                }
-
-                nCheck += nDigit;
-                bEven = !bEven;
-            }
-
-            return (nCheck % 10) === 0;
-        },
-
-        date_in_past: (field, param = null) => {
-            const date = getDateInstance(field.value);
-            let now = new Date();
-            now.setUTCHours(0, 0, 0, 0);
-
-            let message = defaults.messages.date_in_past;
-            let add = defaults.messages.date_addition;
-
-            if (Boolean(param) && param == "=") {
-                if (message.indexOf(add) === -1) {
-                    defaults.messages.date_in_past += ' ' + add;
-                }
-                return date <= now;
-            }
-
-            if (message.indexOf(add) !== -1) {
-                defaults.messages.date_in_past = message.replace(' ' + add, '');
-            }
-
-            return date < now;
-        },
-
-        date_in_future: (field, param = null) => {
-            const date = getDateInstance(field.value);
-            let now = new Date();
-            now.setUTCHours(0, 0, 0, 0);
-
-            let message = defaults.messages.date_in_future;
-            let add = defaults.messages.date_addition;
-
-            if (Boolean(param) && param == "=") {
-                if (message.indexOf(add) === -1) {
-                    defaults.messages.date_in_future += ' ' + add;
-                }
-                return date >= now;
-            }
-
-            if (message.indexOf(add) !== -1) {
-                defaults.messages.date_in_future = message.replace(' ' + add, '');
-            }
-
-            return date > now;
-        },
-
-        date_greater_than: (field, param) => {
-            let paramField = defaults.formFields.filter(obj => obj.name === param.replace('=', ''))[0];
-
-            if (!paramField.visited || !paramField.value) {
-                return true
-            }
-
-            let message = defaults.messages.date_greater_than;
-            let add = defaults.messages.equals_addition;
-
-            const fieldDate = getDateInstance(field.value);
-            const paramDate = getDateInstance(paramField.value);
-
-            if (param.startsWith('=')) {
-                if (message.indexOf(add) === -1) {
-                    defaults.messages.date_greater_than += ' ' + add;
-                }
-                return fieldDate >= paramDate;
-            }
-
-            if (message.indexOf(add) !== -1) {
-                defaults.messages.date_greater_than = message.replace(' ' + add, '');
-            }
-
-            return fieldDate > paramDate;
-        },
-
-        date_less_than: (field, param) => {
-            let paramField = defaults.formFields.filter(obj => obj.name === param.replace('=', ''))[0];
-
-            if (!paramField.visited || !paramField.value) {
-                return true
-            }
-
-            let message = defaults.messages.date_less_than;
-            let add = defaults.messages.equals_addition;
-
-            const fieldDate = getDateInstance(field.value);
-            const paramDate = getDateInstance(paramField.value);
-
-            if (param.startsWith('=')) {
-                if (message.indexOf(add) === -1) {
-                    defaults.messages.date_less_than += ' ' + add;
-                }
-                return fieldDate <= paramDate;
-            }
-
-            if (message.indexOf(add) !== -1) {
-                defaults.messages.date_less_than = message.replace(' ' + add, '');
-            }
-
-            return fieldDate < paramDate;
-        },
-
-        valid_date: (field) => {
-            const dateParts = getDateParts(field.value);
-            const date = new Date(`${dateParts.year}-${dateParts.month}-${dateParts.day} 00:00`);
-            const isValid = (Boolean(+date) && date.getDate() == dateParts.day)
-
-            return isValid;
-        },
-
-        is_year: (field) => {
-            return (defaults.regex.yearRegex.test(field.value));
-        },
-
-        year_in_past: (field) => {
-            let now = new Date();
-            const year = now.getFullYear();
-
-            return field.value <= year;
-        },
-
-        years_between: (field, param) => {
-            let paramSplit = param.split(':');
-
-            if (paramSplit.length < 2) {
-                console.warn(`Parameter in ${field.name} is not configured correctly. Expected format: [field:years]`);
-                return false;
-            }
-
-            const fieldAgainst = paramSplit[0];
-            const fieldAgainstData = defaults.formFields.filter(obj => obj.name === fieldAgainst)[0];
-
-            if (!fieldAgainstData.value) {
-                return true;
-            }
-
-            const years = paramSplit[1];
-            const fieldDate = getDateInstance(field.value);
-            const fieldAgainstDate = getDateInstance(fieldAgainstData.value);
-
-            console.log(calculateDiffInYears(fieldDate, fieldAgainstDate));
-            console.log(calculateDiffInYears(fieldDate, fieldAgainstDate) >= parseFloat(years));
-            return (calculateDiffInYears(fieldDate, fieldAgainstDate) >= years);
-        },
-
-        min_years_in_past: (field, param) => {
-            const fieldDate = getDateInstance(field.value);
-            let now = new Date();
-            now.setUTCHours(0, 0, 0, 0);
-
-            return (calculateDiffInYears(fieldDate, now) >= param);
-        },
-
-        max_years_in_past: (field, param) => {
-            const fieldDate = getDateInstance(field.value);
-            let now = new Date();
-            now.setUTCHours(0, 0, 0, 0);
-
-            return (calculateDiffInYears(fieldDate, now) <= param);
-        },
-
-        valid_email: (field) => {
-            return defaults.regex.emailRegex.test(field.value);
-        },
-
-        uk_postcode: (field) => {
-            if (field.value.length > 8 || field.value.length < 6) {
-                return false;
-            }
-
-            return (defaults.regex.postcodeRegex.test(field.value));
-        },
-
-        uk_phonenumber: (field) => {
-            return (defaults.regex.UKPhoneNumberRegex.test(field.value));
-        },
-
-        valid_url: (field) => {
-            return (defaults.regex.urlRegex.test(field.value));
-        },
+    if (field.type === "checkbox" || field.type === "radio") {
+      return field.checked === true;
     }
-}
+
+    return value !== null && value !== "";
+  },
+
+  matches: (field, matchName) => {
+    let matchField = defaults.formFields.filter(
+      obj => obj.name === matchName
+    )[0];
+
+    if (matchField) {
+      return field.value === matchField.value;
+    }
+
+    return false;
+  },
+
+  min_length: (field, length) => {
+    if (!defaults.regex.numericRegex.test(length)) {
+      return false;
+    }
+
+    if (field.value === null) {
+      return false;
+    }
+
+    return field.value.length >= parseInt(length, 10);
+  },
+
+  max_length: (field, length) => {
+    if (!defaults.regex.numericRegex.test(length)) {
+      return false;
+    }
+
+    if (field.value === null) {
+      return false;
+    }
+
+    return field.value.length <= parseInt(length, 10);
+  },
+
+  exact_length: (field, length) => {
+    if (!defaults.regex.numericRegex.test(length)) {
+      return false;
+    }
+
+    if (field.value === null) {
+      return false;
+    }
+
+    return field.value.length === parseInt(length, 10);
+  },
+
+  greater_than: (field, param) => {
+    if (!defaults.regex.decimalRegex.test(field.value)) {
+      return false;
+    }
+
+    let message = defaults.messages.greater_than;
+    let add = defaults.messages.equals_addition;
+
+    if (param.startsWith("=")) {
+      if (message.indexOf(add) === -1) {
+        defaults.messages.greater_than += " " + add;
+      }
+      return parseFloat(field.value) >= parseFloat(param.substring(1));
+    }
+
+    if (message.indexOf(add) !== -1) {
+      defaults.messages.greater_than = message.replace(" " + add, "");
+    }
+
+    return parseFloat(field.value) > parseFloat(param);
+  },
+
+  less_than: (field, param) => {
+    if (!defaults.regex.decimalRegex.test(field.value)) {
+      return false;
+    }
+
+    let message = defaults.messages.greater_than;
+    let add = defaults.messages.equals_addition;
+
+    if (param.startsWith("=")) {
+      if (message.indexOf(add) === -1) {
+        defaults.messages.less_than += " " + add;
+      }
+      return parseFloat(field.value) <= parseFloat(param.substring(1));
+    }
+
+    if (message.indexOf(add) !== -1) {
+      defaults.messages.less_than = message.replace(" " + add, "");
+    }
+
+    return parseFloat(field.value) < parseFloat(param);
+  },
+
+  alpha: field => {
+    return defaults.regex.alphaRegex.test(field.value);
+  },
+
+  alpha_numeric: field => {
+    return defaults.regex.alphaNumericRegex.test(field.value);
+  },
+
+  alpha_dash: field => {
+    return defaults.regex.alphaDashRegex.test(field.value);
+  },
+
+  numeric: field => {
+    return defaults.regex.numericRegex.test(field.value);
+  },
+
+  integer: field => {
+    return defaults.regex.integerRegex.test(field.value);
+  },
+
+  decimal: field => {
+    return defaults.regex.decimalRegex.test(field.value);
+  },
+
+  is_natural: field => {
+    return defaults.regex.naturalRegex.test(field.value);
+  },
+
+  is_natural_no_zero: field => {
+    return defaults.regex.naturalNoZeroRegex.test(field.value);
+  },
+
+  valid_ip: field => {
+    return defaults.regex.ipRegex.test(field.value);
+  },
+
+  valid_base64: field => {
+    return defaults.regex.base64Regex.test(field.value);
+  },
+
+  valid_credit_card: field => {
+    // Luhn Check Code from https://gist.github.com/4075533
+    // accept only digits, dashes or spaces
+    if (!defaults.regex.numericDashRegex.test(field.value)) return false;
+
+    let nCheck = 0,
+      nDigit = 0,
+      bEven = false;
+    let strippedField = field.value.replace(/\D/g, "");
+
+    for (let n = strippedField.length - 1; n >= 0; n--) {
+      let cDigit = strippedField.charAt(n);
+      nDigit = parseInt(cDigit, 10);
+      if (bEven) {
+        if ((nDigit *= 2) > 9) nDigit -= 9;
+      }
+
+      nCheck += nDigit;
+      bEven = !bEven;
+    }
+
+    return nCheck % 10 === 0;
+  },
+
+  date_in_past: (field, param = null) => {
+    const date = getDateInstance(field.value);
+    let now = new Date();
+    now.setUTCHours(0, 0, 0, 0);
+
+    let message = defaults.messages.date_in_past;
+    let add = defaults.messages.date_addition;
+
+    if (Boolean(param) && param == "=") {
+      if (message.indexOf(add) === -1) {
+        defaults.messages.date_in_past += " " + add;
+      }
+      return date <= now;
+    }
+
+    if (message.indexOf(add) !== -1) {
+      defaults.messages.date_in_past = message.replace(" " + add, "");
+    }
+
+    return date < now;
+  },
+
+  date_in_future: (field, param = null) => {
+    const date = getDateInstance(field.value);
+    let now = new Date();
+    now.setUTCHours(0, 0, 0, 0);
+
+    let message = defaults.messages.date_in_future;
+    let add = defaults.messages.date_addition;
+
+    if (Boolean(param) && param == "=") {
+      if (message.indexOf(add) === -1) {
+        defaults.messages.date_in_future += " " + add;
+      }
+      return date >= now;
+    }
+
+    if (message.indexOf(add) !== -1) {
+      defaults.messages.date_in_future = message.replace(" " + add, "");
+    }
+
+    return date > now;
+  },
+
+  date_greater_than: (field, param) => {
+    let paramField = defaults.formFields.filter(
+      obj => obj.name === param.replace("=", "")
+    )[0];
+
+    if (!paramField.visited || !paramField.value) {
+      return true;
+    }
+
+    let message = defaults.messages.date_greater_than;
+    let add = defaults.messages.equals_addition;
+
+    const fieldDate = getDateInstance(field.value);
+    const paramDate = getDateInstance(paramField.value);
+
+    if (param.startsWith("=")) {
+      if (message.indexOf(add) === -1) {
+        defaults.messages.date_greater_than += " " + add;
+      }
+      return fieldDate >= paramDate;
+    }
+
+    if (message.indexOf(add) !== -1) {
+      defaults.messages.date_greater_than = message.replace(" " + add, "");
+    }
+
+    return fieldDate > paramDate;
+  },
+
+  date_less_than: (field, param) => {
+    let paramField = defaults.formFields.filter(
+      obj => obj.name === param.replace("=", "")
+    )[0];
+
+    if (!paramField.visited || !paramField.value) {
+      return true;
+    }
+
+    let message = defaults.messages.date_less_than;
+    let add = defaults.messages.equals_addition;
+
+    const fieldDate = getDateInstance(field.value);
+    const paramDate = getDateInstance(paramField.value);
+
+    if (param.startsWith("=")) {
+      if (message.indexOf(add) === -1) {
+        defaults.messages.date_less_than += " " + add;
+      }
+      return fieldDate <= paramDate;
+    }
+
+    if (message.indexOf(add) !== -1) {
+      defaults.messages.date_less_than = message.replace(" " + add, "");
+    }
+
+    return fieldDate < paramDate;
+  },
+
+  valid_date: field => {
+    const dateParts = getDateParts(field.value);
+    const date = new Date(
+      `${dateParts.year}-${dateParts.month}-${dateParts.day} 00:00`
+    );
+    const isValid = Boolean(+date) && date.getDate() == dateParts.day;
+
+    return isValid;
+  },
+
+  is_year: field => {
+    return defaults.regex.yearRegex.test(field.value);
+  },
+
+  year_in_past: field => {
+    let now = new Date();
+    const year = now.getFullYear();
+
+    return field.value <= year;
+  },
+
+  years_between: (field, param) => {
+    let paramSplit = param.split(":");
+
+    if (paramSplit.length < 2) {
+      console.warn(
+        `Parameter in ${field.name} is not configured correctly. Expected format: [field:years]`
+      );
+      return false;
+    }
+
+    const fieldAgainst = paramSplit[0];
+    const fieldAgainstData = defaults.formFields.filter(
+      obj => obj.name === fieldAgainst
+    )[0];
+
+    if (!fieldAgainstData.value) {
+      return true;
+    }
+
+    const years = paramSplit[1];
+    const fieldDate = getDateInstance(field.value);
+    const fieldAgainstDate = getDateInstance(fieldAgainstData.value);
+
+    console.log(calculateDiffInYears(fieldDate, fieldAgainstDate));
+    console.log(
+      calculateDiffInYears(fieldDate, fieldAgainstDate) >= parseFloat(years)
+    );
+    return calculateDiffInYears(fieldDate, fieldAgainstDate) >= years;
+  },
+
+  min_years_in_past: (field, param) => {
+    const fieldDate = getDateInstance(field.value);
+    let now = new Date();
+    now.setUTCHours(0, 0, 0, 0);
+
+    return calculateDiffInYears(fieldDate, now) >= param;
+  },
+
+  max_years_in_past: (field, param) => {
+    const fieldDate = getDateInstance(field.value);
+    let now = new Date();
+    now.setUTCHours(0, 0, 0, 0);
+
+    return calculateDiffInYears(fieldDate, now) <= param;
+  },
+
+  valid_email: field => {
+    return defaults.regex.emailRegex.test(field.value);
+  },
+
+  uk_postcode: field => {
+    if (field.value.length > 8 || field.value.length < 6) {
+      return false;
+    }
+
+    return defaults.regex.postcodeRegex.test(field.value);
+  },
+
+  uk_phonenumber: field => {
+    return defaults.regex.UKPhoneNumberRegex.test(field.value);
+  },
+
+  valid_url: field => {
+    return defaults.regex.urlRegex.test(field.value);
+  }
+};
+
+module.exports = hooks;

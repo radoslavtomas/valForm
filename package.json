@@ -1,6 +1,6 @@
 {
   "name": "valform",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Form validation library",
   "main": "dist/index.js",
   "repository": {
@@ -9,10 +9,14 @@
   },
   "dependencies": {},
   "devDependencies": {
+    "@babel/cli": "^7.5.5",
+    "@babel/core": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "babel-preset-minify": "^0.5.1",
     "parcel-bundler": "^1.12.3"
   },
   "scripts": {
-    "build": "parcel build src/index.js",
+    "build": "npx babel src/index.js --out-file dist/index.js",
     "prepublish": "npm run build"
   },
   "keywords": [
