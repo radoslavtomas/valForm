@@ -1,5 +1,5 @@
-let defaults = require("./_defaults");
-let validationHandlers = require("./_validationHandlers");
+import defaults from "./_defaults";
+import validationHandlers from "./_validationHandlers";
 
 const validateField = validationHandlers.validateField;
 const validateWith = validationHandlers.validateWith;
@@ -16,8 +16,6 @@ let initializeForm = (args = null) => {
   defaults.formInstance = getFormInstance(defaults.form.formId);
   defaults.formFields = createAllFields();
   defaults.formFieldsNames = getFormFieldsNames();
-
-  console.log(defaults.formFields);
 };
 
 /**

@@ -1,15 +1,14 @@
-let defaults = require("./_defaults");
-const dateHandlers = require("./_dateHandlers");
+import defaults from "./_defaults";
+import dateHandlers from "./_dateHandlers";
 
 const getDateParts = dateHandlers.getDateParts;
 const getDateInstance = dateHandlers.getDateInstance;
 const calculateDiffInYears = dateHandlers.calculateDiffInYears;
 
 /**
- * @private
+ * @public
  * Validation methods
  */
-
 let hooks = {
   required: field => {
     let value = field.value;
