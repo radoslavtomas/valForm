@@ -7,16 +7,19 @@
     "type": "git",
     "url": "https://github.com/radoslavtomas/valForm.git"
   },
-  "dependencies": {},
+  "dependencies": {
+    "babel-loader": "^8.0.6"
+  },
   "devDependencies": {
     "@babel/cli": "^7.5.5",
     "@babel/core": "^7.5.5",
     "@babel/preset-env": "^7.5.5",
     "babel-preset-minify": "^0.5.1",
-    "parcel-bundler": "^1.12.3"
+    "webpack": "^4.39.3",
+    "webpack-cli": "^3.3.8"
   },
   "scripts": {
-    "build": "npx babel src/index.js --out-file dist/index.js",
+    "build": "webpack",
     "prepublish": "npm run build"
   },
   "keywords": [

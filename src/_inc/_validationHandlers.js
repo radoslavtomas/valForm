@@ -1,6 +1,6 @@
-import defaults from "./_defaults";
-import hooks from "./_validationMethods";
-import DOMHandlers from "./_DOMHandlers";
+let defaults = require("./_defaults");
+let hooks = require("./_validationMethods");
+let DOMHandlers = require("./_DOMHandlers");
 
 const createErrorElement = DOMHandlers.createErrorElement;
 const appendErrorElement = DOMHandlers.appendErrorElement;

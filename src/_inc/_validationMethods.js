@@ -1,5 +1,5 @@
-import defaults from "./_defaults";
-import dateHandlers from "./_dateHandlers";
+let defaults = require("./_defaults");
+let dateHandlers = require("./_dateHandlers");
 
 const getDateParts = dateHandlers.getDateParts;
 const getDateInstance = dateHandlers.getDateInstance;

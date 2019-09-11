@@ -1,4 +1,4 @@
-import defaults from "./_defaults";
+let defaults = require("./_defaults");
 
 /**
  * @private

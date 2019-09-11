@@ -1,8 +1,8 @@
-import validationHandlers from "./_inc/_validationHandlers";
-import formHandlers from "./_inc/_formHandlers";
+const validationHandlers = require("./_inc/_validationHandlers");
+const formHandlers = require("./_inc/_formHandlers");
 
 const valForm = {
-  init: initializeForm,
+  init: formHandlers.initializeForm,
   partialValidation: validationHandlers.validatePartially,
   validateForm: validationHandlers.validateForm,
   validateHidden: validationHandlers.validateHidden,
