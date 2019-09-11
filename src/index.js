@@ -483,7 +483,9 @@ const validateField = (field, hidden = false) => {
   field.visited = true;
   let fieldElement = document.getElementsByName(field.name)[0];
 
-  field.value = fieldElement.value;
+  if (!hidden) {
+    field.value = fieldElement.value;
+  }
 
   // clear old error message
   const oldError = document.querySelector(
