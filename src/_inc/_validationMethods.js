@@ -322,10 +322,6 @@ let hooks = {
     const fieldDate = getDateInstance(field.value);
     const fieldAgainstDate = getDateInstance(fieldAgainstData.value);
 
-    console.log(calculateDiffInYears(fieldDate, fieldAgainstDate));
-    console.log(
-      calculateDiffInYears(fieldDate, fieldAgainstDate) >= parseFloat(years)
-    );
     return calculateDiffInYears(fieldDate, fieldAgainstDate) >= years;
   },
 

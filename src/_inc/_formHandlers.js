@@ -16,8 +16,6 @@ let initializeForm = (args = null) => {
   defaults.formInstance = getFormInstance(defaults.form.formId);
   defaults.formFields = createAllFields();
   defaults.formFieldsNames = getFormFieldsNames();
-
-  console.log(defaults.formFields);
 };
 
 /**

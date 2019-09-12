@@ -151,7 +151,6 @@ const getValidationErrorMessage = (rule, fieldName, param = null) => {
         defaults.formFieldsNames[split[0]]
       );
     } else {
-      console.log(param);
       if (
         Object.keys(defaults.formFieldsNames).indexOf(param.replace("=", "")) >=
         0
@@ -314,7 +313,7 @@ const processForm = event => {
   if (check) {
     defaults.formInstance.submit();
   } else {
-    console.log("Not valid yet");
+    // console.log("Not valid yet");
   }
 };
 
