@@ -1,15 +1,14 @@
 let defaults = require("./_defaults");
-const dateHandlers = require("./_dateHandlers");
+let dateHandlers = require("./_dateHandlers");
 
 const getDateParts = dateHandlers.getDateParts;
 const getDateInstance = dateHandlers.getDateInstance;
 const calculateDiffInYears = dateHandlers.calculateDiffInYears;
 
 /**
- * @private
+ * @public
  * Validation methods
  */
-
 let hooks = {
   required: field => {
     let value = field.value;
@@ -323,10 +322,6 @@ let hooks = {
     const fieldDate = getDateInstance(field.value);
     const fieldAgainstDate = getDateInstance(fieldAgainstData.value);
 
-    console.log(calculateDiffInYears(fieldDate, fieldAgainstDate));
-    console.log(
-      calculateDiffInYears(fieldDate, fieldAgainstDate) >= parseFloat(years)
-    );
     return calculateDiffInYears(fieldDate, fieldAgainstDate) >= years;
   },
 

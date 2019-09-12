@@ -1,6 +1,6 @@
 ## valForm
 
-valForm is lightweight javascript form validation library inspired by Rick Harrison's validate.js - [http://rickharrison.github.io/validate.js](http://rickharrison.github.io/validate.js).
+valForm is lightweight javascript form validation library (18kb minified, 6kb gzip) inspired by Rick Harrison's validate.js - [http://rickharrison.github.io/validate.js](http://rickharrison.github.io/validate.js).
 
 valForm does not have any dependencies and is fully customizable customizable.
 

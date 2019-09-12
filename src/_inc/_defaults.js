@@ -1,8 +1,7 @@
 /**
- *  * @private
+ *  * @public
  * All defaults including messages & regex patterns
  */
-
 let defaults = {
   form: {
     formId: "",

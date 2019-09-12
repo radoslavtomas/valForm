@@ -11,12 +11,21 @@ const appendErrorElement = DOMHandlers.appendErrorElement;
  *
  * If error --> create error element & append it after validated field
  *
+ * Note: hidden comes validateHidden method => we don't want to update the value from DOM
+ * as it moght not be there yet when dealing with components. We also pass a value
+ * for hidden field so we already have a fresh update there.
+ *
  * @param field | {Object}
+ * @param hidden | {Boolean}
  * @returns true or false
  */
-const validateField = field => {
+const validateField = (field, hidden = false) => {
   field.visited = true;
   let fieldElement = document.getElementsByName(field.name)[0];
+
+  if (!hidden) {
+    field.value = fieldElement.value;
+  }
 
   // clear old error message
   const oldError = document.querySelector(
@@ -65,7 +74,6 @@ const validateField = field => {
 
       appendErrorElement(errorElement, field);
 
-      // setFieldValidationClass(fieldElement, defaults.form.validationErrorClass, 'add');
       fieldElement.classList.add(defaults.form.validationErrorClass);
       dispatchFieldValidationEvent(fieldElement, field.name);
 
@@ -82,13 +90,19 @@ const validateField = field => {
   return true;
 };
 
+/**
+ * @public
+ * Validate hidden field
+ *
+ * @param fieldName | {String}
+ */
 const validateHidden = (name, value) => {
   let index = defaults.formFields.findIndex(field => {
     return field.name === name;
   });
   defaults.formFields[index].value = value;
 
-  validateField(defaults.formFields[index]);
+  validateField(defaults.formFields[index], true);
 
   // re-validate field connected to this one
   validateWith(defaults.formFields[index].with);
@@ -137,7 +151,6 @@ const getValidationErrorMessage = (rule, fieldName, param = null) => {
         defaults.formFieldsNames[split[0]]
       );
     } else {
-      console.log(param);
       if (
         Object.keys(defaults.formFieldsNames).indexOf(param.replace("=", "")) >=
         0
@@ -207,7 +220,7 @@ const validateForm = (returnData = false) => {
 };
 
 /**
- * @public
+ * @private
  * Partial form validation (array given)
  *
  * If returnData is true then the array of fields will be returned
@@ -233,7 +246,7 @@ const validatePartiallyArray = (arr, returnData) => {
 };
 
 /**
- * @public
+ * @private
  * Partial form validation (string given)
  *
  * If returnData is true then the array of fields will be returned
@@ -300,7 +313,7 @@ const processForm = event => {
   if (check) {
     defaults.formInstance.submit();
   } else {
-    console.log("Not valid yet");
+    // console.log("Not valid yet");
   }
 };
 
