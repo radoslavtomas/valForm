@@ -18,7 +18,9 @@ npm install valform
 
 ```javascript
 import valForm from "valform";
+valForm.init();
 ```
+You would want to initialize valForm on the page where you have your form element. Form needs to be in the DOM so if you are using frameworks like react or vue etc. you need to place valForm.init method to respective lifecyle methods (e.g. in react to "componentDidMount()" or in vue to "mounted()").
 
 ### Configuration
 
