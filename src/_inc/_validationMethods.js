@@ -179,7 +179,7 @@ let hooks = {
   date_in_past: (field, param = null) => {
     const date = getDateInstance(field.value);
     let now = new Date();
-    now.setUTCHours(0, 0, 0, 0);
+    now.setHours(0, 0, 0, 0);
 
     let message = defaults.messages.date_in_past;
     let add = defaults.messages.date_addition;
@@ -201,7 +201,7 @@ let hooks = {
   date_in_future: (field, param = null) => {
     const date = getDateInstance(field.value);
     let now = new Date();
-    now.setUTCHours(0, 0, 0, 0);
+    now.setHours(0, 0, 0, 0);
 
     let message = defaults.messages.date_in_future;
     let add = defaults.messages.date_addition;
@@ -328,7 +328,7 @@ let hooks = {
   min_years_in_past: (field, param) => {
     const fieldDate = getDateInstance(field.value);
     let now = new Date();
-    now.setUTCHours(0, 0, 0, 0);
+    now.setHours(0, 0, 0, 0);
 
     return calculateDiffInYears(fieldDate, now) >= param;
   },
@@ -336,7 +336,7 @@ let hooks = {
   max_years_in_past: (field, param) => {
     const fieldDate = getDateInstance(field.value);
     let now = new Date();
-    now.setUTCHours(0, 0, 0, 0);
+    now.setHours(0, 0, 0, 0);
 
     return calculateDiffInYears(fieldDate, now) <= param;
   },
