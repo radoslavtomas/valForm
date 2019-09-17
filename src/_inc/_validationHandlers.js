@@ -5,6 +5,36 @@ let DOMHandlers = require("./_DOMHandlers");
 const createErrorElement = DOMHandlers.createErrorElement;
 const appendErrorElement = DOMHandlers.appendErrorElement;
 
+const loopThroughMethods = async (field) => {
+  let result;
+  let param = null;
+  let rules = field.rules;
+  let length = rules.length;
+
+  for (let i = 0; i < length; i++) {
+    let rule = rules[i]
+    let parts = defaults.regex.ruleRegex.exec(rule);
+
+    if (parts) {
+      rule = parts[1];
+      param = parts[2];
+      result = await hooks[rule](field, param);
+    } else {
+      result = await hooks[rule](field);
+    }
+
+    if(result === false) {
+      return {
+        valid: false,
+        index: i,
+        param: param
+      }
+    }
+
+    return true;
+  }
+}
+
 /**
  * @private
  * Validate field
@@ -19,7 +49,7 @@ const appendErrorElement = DOMHandlers.appendErrorElement;
  * @param hidden | {Boolean}
  * @returns true or false
  */
-const validateField = (field, hidden = false) => {
+const validateField = async (field, hidden = false) => {
   field.visited = true;
   let fieldElement = document.getElementsByName(field.name)[0];
 
@@ -29,7 +59,7 @@ const validateField = (field, hidden = false) => {
 
   // clear old error message
   const oldError = document.querySelector(
-    "." + field.name.replace(/[^a-z0-9 ,.?!]/gi, "") + "_error"
+      "." + field.name.replace(/[^a-z0-9 ,.?!]/gi, "") + "_error"
   );
   if (oldError) {
     oldError.remove();
@@ -48,38 +78,26 @@ const validateField = (field, hidden = false) => {
     return true;
   }
 
-  for (let i = 0; i < field.rules.length; i++) {
-    let check,
-      param = null;
-    let rule = field.rules[i];
-    let parts = defaults.regex.ruleRegex.exec(rule);
+  let check = await loopThroughMethods(field)
 
-    if (parts) {
-      rule = parts[1];
-      param = parts[2];
-      check = hooks[rule](field, param);
-    } else {
-      check = hooks[rule](field);
-    }
+  if (check.valid === false) {
+    field.valid = false;
 
-    if (check === false) {
-      field.valid = false;
-
-      let errorElement = createErrorElement(field.name);
-      errorElement.textContent = field.error = getValidationErrorMessage(
-        rule,
+    let errorElement = createErrorElement(field.name);
+    errorElement.textContent = field.error = getValidationErrorMessage(
+        field.rules[check.index],
         field.display,
-        param
-      );
+        check.param
+    );
 
-      appendErrorElement(errorElement, field);
+    appendErrorElement(errorElement, field);
 
-      fieldElement.classList.add(defaults.form.validationErrorClass);
-      dispatchFieldValidationEvent(fieldElement, field.name);
+    fieldElement.classList.add(defaults.form.validationErrorClass);
+    dispatchFieldValidationEvent(fieldElement, field.name);
 
-      return false;
-    }
+    return false;
   }
+
 
   field.valid = true;
   field.error = null;
@@ -89,7 +107,6 @@ const validateField = (field, hidden = false) => {
 
   return true;
 };
-
 /**
  * @public
  * Validate hidden field
