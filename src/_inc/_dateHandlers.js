@@ -85,6 +85,11 @@ const getDateParts = date => {
 const calculateDiffInYears = (date1, date2) => {
   const diff = Math.abs(date1.getTime() - date2.getTime());
   let years = diff / (1000 * 60 * 60 * 24 * 365.2422);
+
+  if(!years) {
+    return false;
+  }
+
   if (
     years
       .toString()

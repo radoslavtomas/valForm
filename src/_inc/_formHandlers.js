@@ -13,6 +13,13 @@ const processForm = validationHandlers.processForm;
  */
 let initializeForm = (args = null) => {
   defaults.form = { ...defaults.form, ...args };
+  let form = getFormInstance(defaults.form.formId);
+
+  if(!form) {
+    console.warn('No form element found on the page.');
+    return false
+  }
+
   defaults.formInstance = getFormInstance(defaults.form.formId);
   defaults.formFields = createAllFields();
   defaults.formFieldsNames = getFormFieldsNames();
@@ -29,6 +36,11 @@ const getFormInstance = formId => {
   let form = formId
     ? document.getElementById(formId)
     : document.querySelector("form");
+
+  if(!form) {
+    return false;
+  }
+
   form.addEventListener("submit", processForm);
 
   attachDOMObserver(form);
