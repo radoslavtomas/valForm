@@ -19,7 +19,7 @@ const appendErrorElement = DOMHandlers.appendErrorElement;
  * @param hidden | {Boolean}
  * @returns true or false
  */
-function validateField (field, hidden = false) {
+async function validateField (field, hidden = false) {
   field.visited = true;
   let fieldElement = document.getElementsByName(field.name)[0];
 
@@ -58,9 +58,9 @@ function validateField (field, hidden = false) {
     if (parts) {
       rule = parts[1];
       param = parts[2];
-      check = hooks[rule](field, param);
+      check = await hooks[rule](field, param);
     } else {
-      check = hooks[rule](field);
+      check = await hooks[rule](field);
     }
 
     if (check === false) {

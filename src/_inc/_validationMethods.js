@@ -10,22 +10,9 @@ const calculateDiffInYears = dateHandlers.calculateDiffInYears;
  * Validation methods
  */
 let hooks = {
-  // required: (field) => {
-  //   return new Promise((resolve) => {
-  //     setTimeout(() => {
-  //       let value = field.value;
-  //
-  //       if ((field.type === 'checkbox') || (field.type === 'radio')) {
-  //
-  //         return (field.checked === true);
-  //       }
-  //
-  //       resolve(value !== null && value !== '');
-  //     }, 2000)
-  //   })
-  // },
-
   required: (field) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
         let value = field.value;
 
         if ((field.type === 'checkbox') || (field.type === 'radio')) {
@@ -33,8 +20,21 @@ let hooks = {
           return (field.checked === true);
         }
 
-        return (value !== null && value !== '');
+        resolve(value !== null && value !== '');
+      }, 2000)
+    })
   },
+
+  // required: (field) => {
+  //       let value = field.value;
+  //
+  //       if ((field.type === 'checkbox') || (field.type === 'radio')) {
+  //
+  //         return (field.checked === true);
+  //       }
+  //
+  //       return (value !== null && value !== '');
+  // },
 
   matches: (field, matchName) => {
     let matchField = defaults.formFields.filter(
