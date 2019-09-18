@@ -1,39 +1,9 @@
-let defaults = require("./_defaults");
-let hooks = require("./_validationMethods");
-let DOMHandlers = require("./_DOMHandlers");
+import defaults from "./_defaults";
+import hooks from "./_validationMethods";
+import DOMHandlers from "./_DOMHandlers";
 
 const createErrorElement = DOMHandlers.createErrorElement;
 const appendErrorElement = DOMHandlers.appendErrorElement;
-
-const loopThroughMethods = async (field) => {
-  let result;
-  let param = null;
-  let rules = field.rules;
-  let length = rules.length;
-
-  for (let i = 0; i < length; i++) {
-    let rule = rules[i]
-    let parts = defaults.regex.ruleRegex.exec(rule);
-
-    if (parts) {
-      rule = parts[1];
-      param = parts[2];
-      result = await hooks[rule](field, param);
-    } else {
-      result = await hooks[rule](field);
-    }
-
-    if(result === false) {
-      return {
-        valid: false,
-        index: i,
-        param: param
-      }
-    }
-
-    return true;
-  }
-}
 
 /**
  * @private
@@ -49,7 +19,7 @@ const loopThroughMethods = async (field) => {
  * @param hidden | {Boolean}
  * @returns true or false
  */
-const validateField = async (field, hidden = false) => {
+function validateField (field, hidden = false) {
   field.visited = true;
   let fieldElement = document.getElementsByName(field.name)[0];
 
@@ -61,6 +31,7 @@ const validateField = async (field, hidden = false) => {
   const oldError = document.querySelector(
       "." + field.name.replace(/[^a-z0-9 ,.?!]/gi, "") + "_error"
   );
+
   if (oldError) {
     oldError.remove();
   }
@@ -78,26 +49,38 @@ const validateField = async (field, hidden = false) => {
     return true;
   }
 
-  let check = await loopThroughMethods(field)
+  for (let i = 0; i < field.rules.length; i++) {
+    let check,
+        param = null;
+    let rule = field.rules[i];
+    let parts = defaults.regex.ruleRegex.exec(rule);
 
-  if (check.valid === false) {
-    field.valid = false;
+    if (parts) {
+      rule = parts[1];
+      param = parts[2];
+      check = hooks[rule](field, param);
+    } else {
+      check = hooks[rule](field);
+    }
 
-    let errorElement = createErrorElement(field.name);
-    errorElement.textContent = field.error = getValidationErrorMessage(
-        field.rules[check.index],
-        field.display,
-        check.param
-    );
+    if (check === false) {
+      field.valid = false;
 
-    appendErrorElement(errorElement, field);
+      let errorElement = createErrorElement(field.name);
+      errorElement.textContent = field.error = getValidationErrorMessage(
+          rule,
+          field.display,
+          param
+      );
 
-    fieldElement.classList.add(defaults.form.validationErrorClass);
-    dispatchFieldValidationEvent(fieldElement, field.name);
+      appendErrorElement(errorElement, field);
 
-    return false;
+      fieldElement.classList.add(defaults.form.validationErrorClass);
+      dispatchFieldValidationEvent(fieldElement, field.name);
+
+      return false;
+    }
   }
-
 
   field.valid = true;
   field.error = null;
@@ -107,13 +90,14 @@ const validateField = async (field, hidden = false) => {
 
   return true;
 };
+
 /**
  * @public
  * Validate hidden field
  *
  * @param fieldName | {String}
  */
-const validateHidden = (name, value) => {
+function validateHidden (name, value) {
   let index = defaults.formFields.findIndex(field => {
     return field.name === name;
   });
@@ -131,7 +115,7 @@ const validateHidden = (name, value) => {
  *
  * @param fieldName | {String}
  */
-const validateWith = fieldName => {
+function validateWith (fieldName) {
   if (fieldName) {
     let validateWith = defaults.formFields.filter(obj => {
       return obj.name === fieldName;
@@ -153,7 +137,7 @@ const validateWith = fieldName => {
  * @param param | {String}
  * @returns String with an error message
  */
-const getValidationErrorMessage = (rule, fieldName, param = null) => {
+function getValidationErrorMessage (rule, fieldName, param = null) {
   // replace first placeholder in default message
   let errorMessage = defaults.messages[rule].replace("%s", fieldName);
 
@@ -192,7 +176,7 @@ const getValidationErrorMessage = (rule, fieldName, param = null) => {
  * @param element | {HTMLElement}
  * @param fieldName | {String}
  */
-const dispatchFieldValidationEvent = (element, fieldName) => {
+function dispatchFieldValidationEvent (element, fieldName) {
   let fieldData = defaults.formFields.filter(obj => obj.name === fieldName)[0];
   let event = new CustomEvent("validated", { detail: fieldData });
   element.dispatchEvent(event);
@@ -208,7 +192,7 @@ const dispatchFieldValidationEvent = (element, fieldName) => {
  * @param returnData | {Boolean}
  * @returns Boolean or data objects for each passed field
  */
-const validatePartially = (args, returnData = false) => {
+function validatePartially (args, returnData = false) {
   if (Array.isArray(args)) {
     return validatePartiallyArray(args, returnData);
   } else if (typeof args === "string") {
@@ -228,7 +212,7 @@ const validatePartially = (args, returnData = false) => {
  * @param returnData
  * @returns Boolean or data objects for each passed field
  */
-const validateForm = (returnData = false) => {
+function validateForm (returnData = false) {
   // console.log(Object.keys(defaults.formFieldsNames));
   return validatePartiallyArray(
     Object.keys(defaults.formFieldsNames),
@@ -246,7 +230,7 @@ const validateForm = (returnData = false) => {
  * @param returnData | {Boolean}
  * @returns Boolean or data objects for each passed field
  */
-const validatePartiallyArray = (arr, returnData) => {
+function validatePartiallyArray (arr, returnData) {
   let check = returnData ? [] : true;
 
   for (let fieldName of arr) {
@@ -272,7 +256,7 @@ const validatePartiallyArray = (arr, returnData) => {
  * @param returnData | {Boolean}
  * @returns Boolean or data objects for each passed field
  */
-const validatePartiallyString = (fieldName, returnData) => {
+function validatePartiallyString (fieldName, returnData) {
   let index = defaults.formFields.findIndex(field => {
     return field.name === fieldName;
   });
@@ -301,7 +285,7 @@ const validatePartiallyString = (fieldName, returnData) => {
  * @param name
  * @param fn
  */
-const addValMethod = (name, fn) => {
+function addValMethod (name, fn) {
   hooks[name] = fn;
 };
 
@@ -312,7 +296,7 @@ const addValMethod = (name, fn) => {
  * @param name
  * @param message
  */
-const addValMessage = (name, message) => {
+function addValMessage (name, message) {
   defaults.messages[name] = message;
 };
 
@@ -322,7 +306,7 @@ const addValMessage = (name, message) => {
  *
  * @param event | {Event}
  */
-const processForm = event => {
+function processForm (event) {
   event.preventDefault();
 
   const check = validateForm();
@@ -334,7 +318,7 @@ const processForm = event => {
   }
 };
 
-const validationHandlers = {
+let validationHandlers = {
   validateField: validateField,
   validateWith: validateWith,
   validatePartially: validatePartially,
@@ -345,4 +329,4 @@ const validationHandlers = {
   processForm: processForm
 };
 
-module.exports = validationHandlers;
+export default validationHandlers;

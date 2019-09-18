@@ -1,5 +1,5 @@
-const validationHandlers = require("./_inc/_validationHandlers");
-const formHandlers = require("./_inc/_formHandlers");
+import validationHandlers from "./_inc/_validationHandlers";
+import formHandlers from "./_inc/_formHandlers";
 
 const valForm = {
   init: formHandlers.initializeForm,
@@ -10,4 +10,16 @@ const valForm = {
   addValMessage: validationHandlers.addValMessage
 };
 
-module.exports = valForm;
+// module.exports = valForm;
+export default valForm;
+
+// export default function valForm () {
+//   return {
+//     init: formHandlers.initializeForm,
+//     partialValidation: validationHandlers.validatePartially,
+//     validateForm: validationHandlers.validateForm,
+//     validateHidden: validationHandlers.validateHidden,
+//     addValMethod: validationHandlers.addValMethod,
+//     addValMessage: validationHandlers.addValMessage
+//   }
+// };

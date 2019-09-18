@@ -72,4 +72,4 @@ let defaults = {
   }
 };
 
-module.exports = defaults;
+export default defaults;

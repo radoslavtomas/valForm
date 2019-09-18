@@ -1,4 +1,4 @@
-let defaults = require("./_defaults");
+import defaults from "./_defaults";
 
 /**
  * Custom "appendAfter" function to be able to append new elements to DOM
@@ -15,7 +15,7 @@ let defaults = require("./_defaults");
  * @param field | {HTMLElement}
  * @returns Element
  */
-const getAppendAfterElement = field => {
+function getAppendAfterElement (field) {
   // check siblings
   let sibling = checkSiblings(field);
 
@@ -47,7 +47,7 @@ const getAppendAfterElement = field => {
  * @param element | {HTMLElement}
  * @returns {Array}
  */
-const getSiblings = element => {
+function getSiblings (element) {
   let siblings = [];
   let sibling = element.parentNode.firstChild;
 
@@ -68,7 +68,7 @@ const getSiblings = element => {
  * @param field | {HTMLElement}
  * @returns Element with a searched class or false
  */
-const checkSiblings = field => {
+function checkSiblings (field) {
   let siblings = getSiblings(field);
 
   if (siblings) {
@@ -89,7 +89,7 @@ const checkSiblings = field => {
  * @param element | {HTMLElement}
  * @returns Element with a searched class or false
  */
-const checkParent = element => {
+function checkParent (element) {
   let parent = element.parentNode;
 
   if (parent.classList.contains(defaults.form.appendAfter)) {
@@ -106,7 +106,7 @@ const checkParent = element => {
  * @param errorElement | {String}
  * @param field | {Object}
  */
-const appendErrorElement = (errorElement, field) => {
+function appendErrorElement (errorElement, field) {
   if (defaults.form.appendAfter) {
     let fieldEl = document.getElementsByName(field.name)[0];
     let element = getAppendAfterElement(fieldEl);
@@ -133,7 +133,7 @@ const appendErrorElement = (errorElement, field) => {
  * @param fieldName | {String}
  * @returns HTMLElement
  */
-const createErrorElement = fieldName => {
+function createErrorElement (fieldName) {
   const errorElement = document.createElement(defaults.form.errorElement);
   const cleanFieldName = fieldName.replace(/[^a-z0-9 ,.?!]/gi, ""); // in case we have a name attribute for checkboxes in format "checkbox[]"
   errorElement.setAttribute(
@@ -149,4 +149,4 @@ const DOMHandlers = {
   appendErrorElement: appendErrorElement
 };
 
-module.exports = DOMHandlers;
+export default DOMHandlers;

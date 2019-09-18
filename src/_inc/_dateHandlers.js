@@ -1,4 +1,4 @@
-let defaults = require("./_defaults");
+import defaults from "./_defaults";
 
 /**
  * @private
@@ -12,7 +12,7 @@ let defaults = require("./_defaults");
  * @param regex
  * @returns Object with day, month and year values
  */
-const createDateParts = (date, delimiter, order, regex) => {
+function createDateParts (date, delimiter, order, regex) {
   if (!date.match(regex)) {
     return false;
   }
@@ -41,7 +41,7 @@ const createDateParts = (date, delimiter, order, regex) => {
  * @param date
  * @returns Object with day, month and year values
  */
-const getDateParts = date => {
+function getDateParts (date) {
   const dateFormat = defaults.form.dateFormat;
 
   if (defaults.supportedDateFormats.indexOf(dateFormat) < 0) {
@@ -82,7 +82,7 @@ const getDateParts = date => {
  * @param date2
  * @returns true or false
  */
-const calculateDiffInYears = (date1, date2) => {
+function calculateDiffInYears (date1, date2) {
   const diff = Math.abs(date1.getTime() - date2.getTime());
   let years = diff / (1000 * 60 * 60 * 24 * 365.2422);
 
@@ -108,7 +108,7 @@ const calculateDiffInYears = (date1, date2) => {
  * @param date
  * @returns Date
  */
-const getDateInstance = date => {
+function getDateInstance (date) {
   const dateParts = getDateParts(date);
   const dateInstance = new Date(
     `${dateParts.year}-${dateParts.month}-${dateParts.day} 00:00`
@@ -122,4 +122,4 @@ const dateHandlers = {
   calculateDiffInYears: calculateDiffInYears
 };
 
-module.exports = dateHandlers;
+export default dateHandlers;

@@ -1,5 +1,5 @@
-let defaults = require("./_defaults");
-let dateHandlers = require("./_dateHandlers");
+import defaults from "./_defaults";
+import dateHandlers from "./_dateHandlers";
 
 const getDateParts = dateHandlers.getDateParts;
 const getDateInstance = dateHandlers.getDateInstance;
@@ -10,14 +10,30 @@ const calculateDiffInYears = dateHandlers.calculateDiffInYears;
  * Validation methods
  */
 let hooks = {
-  required: field => {
-    let value = field.value;
+  // required: (field) => {
+  //   return new Promise((resolve) => {
+  //     setTimeout(() => {
+  //       let value = field.value;
+  //
+  //       if ((field.type === 'checkbox') || (field.type === 'radio')) {
+  //
+  //         return (field.checked === true);
+  //       }
+  //
+  //       resolve(value !== null && value !== '');
+  //     }, 2000)
+  //   })
+  // },
 
-    if (field.type === "checkbox" || field.type === "radio") {
-      return field.checked === true;
-    }
+  required: (field) => {
+        let value = field.value;
 
-    return value !== null && value !== "";
+        if ((field.type === 'checkbox') || (field.type === 'radio')) {
+
+          return (field.checked === true);
+        }
+
+        return (value !== null && value !== '');
   },
 
   matches: (field, matchName) => {
@@ -362,4 +378,4 @@ let hooks = {
   }
 };
 
-module.exports = hooks;
+export default hooks;

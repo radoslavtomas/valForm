@@ -1,12 +1,15 @@
 const webpack = require("webpack");
 const path = require("path");
+// const AddModuleExportsPlugin = require('add-module-exports-webpack-plugin');
+// const WrapperPlugin = require('wrapper-webpack-plugin');
 
 module.exports = {
   entry: "./src/index.js",
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "index.js",
-    libraryTarget: "umd"
+    // library: 'valForm',
+    libraryTarget: "umd",
   },
   mode: "production",
   module: {

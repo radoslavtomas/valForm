@@ -1,5 +1,5 @@
-let defaults = require("./_defaults");
-let validationHandlers = require("./_validationHandlers");
+import defaults from "./_defaults";
+import validationHandlers from "./_validationHandlers";
 
 const validateField = validationHandlers.validateField;
 const validateWith = validationHandlers.validateWith;
@@ -11,7 +11,7 @@ const processForm = validationHandlers.processForm;
  *
  * @param args | {Object}
  */
-let initializeForm = (args = null) => {
+function initializeForm (args = null) {
   defaults.form = { ...defaults.form, ...args };
   let form = getFormInstance(defaults.form.formId);
 
@@ -32,7 +32,7 @@ let initializeForm = (args = null) => {
  * @param formId | {String}
  * @returns Form instance
  */
-const getFormInstance = formId => {
+function getFormInstance (formId) {
   let form = formId
     ? document.getElementById(formId)
     : document.querySelector("form");
@@ -55,7 +55,7 @@ const getFormInstance = formId => {
  *
  * @param form | {HTMLElement}
  */
-const attachDOMObserver = form => {
+function attachDOMObserver (form) {
   // Options for the observer (which mutations to observe)
   let mutationConfig = { attributes: false, childList: true, subtree: true };
   // Create an observer instance linked to the callback function
@@ -71,7 +71,7 @@ const attachDOMObserver = form => {
  * @param mutationsList
  * @param observer
  */
-const mutationCallback = (mutationsList, observer) => {
+function mutationCallback (mutationsList, observer) {
   // console.log('DOM has changed');
   let newFields = createAllFields();
   defaults.formFields = mergedArrays(defaults.formFields, newFields);
@@ -86,7 +86,7 @@ const mutationCallback = (mutationsList, observer) => {
  * @param newFields | {Array}
  * @returns Array
  */
-const mergedArrays = (formFields, newFields) => {
+function mergedArrays (formFields, newFields) {
   let mergedArr = [];
 
   // get arrays of IDs to compare the length
@@ -125,7 +125,7 @@ const mergedArrays = (formFields, newFields) => {
  *
  * @returns Object of field names with name attributes as keys
  */
-const getFormFieldsNames = () => {
+function getFormFieldsNames () {
   let names = {};
 
   for (let obj of defaults.formFields) {
@@ -141,7 +141,7 @@ const getFormFieldsNames = () => {
  *
  * @returns Array of all form fields
  */
-const createAllFields = () => {
+function createAllFields () {
   let formFields = [];
   let fieldNodeList = null;
 
@@ -198,7 +198,7 @@ const createAllFields = () => {
  * @param field | {HTMLElement}
  * @returns Object with all field attributes we might need
  */
-const addField = field => {
+function addField (field) {
   let obj = {
     name: field.name,
     display: field.dataset.valDisplay ? field.dataset.valDisplay : field.name,
@@ -234,7 +234,7 @@ const addField = field => {
  *
  * @param event | {Event}
  */
-const fieldChanged = event => {
+function fieldChanged (event) {
   let index = defaults.formFields.findIndex(field => {
     return field.name === event.target.name;
   });
@@ -263,8 +263,8 @@ const fieldChanged = event => {
   validateWith(defaults.formFields[index].with);
 };
 
-const formHandlers = {
+let formHandlers = {
   initializeForm: initializeForm
 };
 
-module.exports = formHandlers;
+export default formHandlers;
