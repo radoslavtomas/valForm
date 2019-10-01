@@ -362,7 +362,9 @@ let hooks = {
   },
 
   uk_postcode: field => {
-    if (field.value.length > 8 || field.value.length < 6) {
+    const postcode = field.value.replace(/\s/g, '')
+
+    if (postcode.length > 7 || postcode.length < 5) {
       return false;
     }
 
