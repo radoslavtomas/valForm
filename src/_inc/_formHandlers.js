@@ -11,19 +11,19 @@ const processForm = validationHandlers.processForm;
  *
  * @param args | {Object}
  */
-function initializeForm (args = null) {
+function initializeForm(args = null) {
   defaults.form = { ...defaults.form, ...args };
   let form = getFormInstance(defaults.form.formId);
 
-  if(!form) {
-    console.warn('No form element found on the page.');
-    return false
+  if (!form) {
+    console.warn("No form element found on the page.");
+    return false;
   }
 
   defaults.formInstance = getFormInstance(defaults.form.formId);
   defaults.formFields = createAllFields();
   defaults.formFieldsNames = getFormFieldsNames();
-};
+}
 
 /**
  * @private
@@ -32,12 +32,12 @@ function initializeForm (args = null) {
  * @param formId | {String}
  * @returns Form instance
  */
-function getFormInstance (formId) {
+function getFormInstance(formId) {
   let form = formId
     ? document.getElementById(formId)
     : document.querySelector("form");
 
-  if(!form) {
+  if (!form) {
     return false;
   }
 
@@ -46,7 +46,7 @@ function getFormInstance (formId) {
   attachDOMObserver(form);
 
   return form;
-};
+}
 
 /**
  * @private
@@ -55,14 +55,14 @@ function getFormInstance (formId) {
  *
  * @param form | {HTMLElement}
  */
-function attachDOMObserver (form) {
+function attachDOMObserver(form) {
   // Options for the observer (which mutations to observe)
   let mutationConfig = { attributes: false, childList: true, subtree: true };
   // Create an observer instance linked to the callback function
   defaults.DOMObserver = new MutationObserver(mutationCallback);
   // Start observing the target node for configured mutations
   defaults.DOMObserver.observe(form, mutationConfig);
-};
+}
 
 /**
  * @private
@@ -71,12 +71,12 @@ function attachDOMObserver (form) {
  * @param mutationsList
  * @param observer
  */
-function mutationCallback (mutationsList, observer) {
+function mutationCallback(mutationsList, observer) {
   // console.log('DOM has changed');
   let newFields = createAllFields();
   defaults.formFields = mergedArrays(defaults.formFields, newFields);
   defaults.formFieldsNames = getFormFieldsNames();
-};
+}
 
 /**
  * @private
@@ -86,7 +86,7 @@ function mutationCallback (mutationsList, observer) {
  * @param newFields | {Array}
  * @returns Array
  */
-function mergedArrays (formFields, newFields) {
+function mergedArrays(formFields, newFields) {
   let mergedArr = [];
 
   // get arrays of IDs to compare the length
@@ -116,7 +116,7 @@ function mergedArrays (formFields, newFields) {
   }
 
   return mergedArr;
-};
+}
 
 /**
  * @private
@@ -125,7 +125,7 @@ function mergedArrays (formFields, newFields) {
  *
  * @returns Object of field names with name attributes as keys
  */
-function getFormFieldsNames () {
+function getFormFieldsNames() {
   let names = {};
 
   for (let obj of defaults.formFields) {
@@ -133,7 +133,7 @@ function getFormFieldsNames () {
   }
 
   return names;
-};
+}
 
 /**
  * @private
@@ -141,7 +141,7 @@ function getFormFieldsNames () {
  *
  * @returns Array of all form fields
  */
-function createAllFields () {
+function createAllFields() {
   let formFields = [];
   let fieldNodeList = null;
 
@@ -189,7 +189,7 @@ function createAllFields () {
   }
 
   return formFields;
-};
+}
 
 /**
  * @private
@@ -198,7 +198,7 @@ function createAllFields () {
  * @param field | {HTMLElement}
  * @returns Object with all field attributes we might need
  */
-function addField (field) {
+function addField(field) {
   let obj = {
     name: field.name,
     display: field.dataset.valDisplay ? field.dataset.valDisplay : field.name,
@@ -226,7 +226,7 @@ function addField (field) {
   }
 
   return obj;
-};
+}
 
 /**
  * @private
@@ -234,7 +234,7 @@ function addField (field) {
  *
  * @param event | {Event}
  */
-function fieldChanged (event) {
+function fieldChanged(event) {
   let index = defaults.formFields.findIndex(field => {
     return field.name === event.target.name;
   });
@@ -261,7 +261,7 @@ function fieldChanged (event) {
 
   // re-validate field connected to this one
   validateWith(defaults.formFields[index].with);
-};
+}
 
 let formHandlers = {
   initializeForm: initializeForm

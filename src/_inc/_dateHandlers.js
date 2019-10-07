@@ -12,7 +12,7 @@ import defaults from "./_defaults";
  * @param regex
  * @returns Object with day, month and year values
  */
-function createDateParts (date, delimiter, order, regex) {
+function createDateParts(date, delimiter, order, regex) {
   if (!date.match(regex)) {
     return false;
   }
@@ -30,7 +30,7 @@ function createDateParts (date, delimiter, order, regex) {
   dateParts.year = dateArray[order.year];
 
   return dateParts;
-};
+}
 
 /**
  * @public
@@ -41,7 +41,7 @@ function createDateParts (date, delimiter, order, regex) {
  * @param date
  * @returns Object with day, month and year values
  */
-function getDateParts (date) {
+function getDateParts(date) {
   const dateFormat = defaults.form.dateFormat;
 
   if (defaults.supportedDateFormats.indexOf(dateFormat) < 0) {
@@ -73,7 +73,7 @@ function getDateParts (date) {
     const order = { day: 2, month: 1, year: 0 };
     return createDateParts(dateOnly, "-", order, regex);
   }
-};
+}
 
 /**
  * @public
@@ -82,11 +82,11 @@ function getDateParts (date) {
  * @param date2
  * @returns true or false
  */
-function calculateDiffInYears (date1, date2) {
+function calculateDiffInYears(date1, date2) {
   const diff = Math.abs(date1.getTime() - date2.getTime());
   let years = diff / (1000 * 60 * 60 * 24 * 365.2422);
 
-  if(!years) {
+  if (!years) {
     return false;
   }
 
@@ -99,7 +99,7 @@ function calculateDiffInYears (date1, date2) {
     return Math.ceil(years);
   }
   return diff / (1000 * 60 * 60 * 24 * 365.2422);
-};
+}
 
 /**
  * @public
@@ -108,13 +108,13 @@ function calculateDiffInYears (date1, date2) {
  * @param date
  * @returns Date
  */
-function getDateInstance (date) {
+function getDateInstance(date) {
   const dateParts = getDateParts(date);
   const dateInstance = new Date(
     `${dateParts.year}-${dateParts.month}-${dateParts.day} 00:00`
   );
   return dateInstance;
-};
+}
 
 const dateHandlers = {
   getDateParts: getDateParts,

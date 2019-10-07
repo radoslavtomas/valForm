@@ -10,31 +10,15 @@ const calculateDiffInYears = dateHandlers.calculateDiffInYears;
  * Validation methods
  */
 let hooks = {
-  required: (field) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        let value = field.value;
+  required: field => {
+    let value = field.value;
 
-        if ((field.type === 'checkbox') || (field.type === 'radio')) {
+    if (field.type === "checkbox" || field.type === "radio") {
+      return field.checked === true;
+    }
 
-          return (field.checked === true);
-        }
-
-        resolve(value !== null && value !== '');
-      }, 2000)
-    })
+    return value !== null && value !== "";
   },
-
-  // required: (field) => {
-  //       let value = field.value;
-  //
-  //       if ((field.type === 'checkbox') || (field.type === 'radio')) {
-  //
-  //         return (field.checked === true);
-  //       }
-  //
-  //       return (value !== null && value !== '');
-  // },
 
   matches: (field, matchName) => {
     let matchField = defaults.formFields.filter(
@@ -57,7 +41,7 @@ let hooks = {
       return false;
     }
 
-    return field.value.length >= parseInt(length, 10);
+    return field.value.toString().length >= parseInt(length, 10);
   },
 
   max_length: (field, length) => {
@@ -69,7 +53,7 @@ let hooks = {
       return false;
     }
 
-    return field.value.length <= parseInt(length, 10);
+    return field.value.toString().length <= parseInt(length, 10);
   },
 
   exact_length: (field, length) => {
@@ -81,7 +65,7 @@ let hooks = {
       return false;
     }
 
-    return field.value.length === parseInt(length, 10);
+    return field.value.toString().length === parseInt(length, 10);
   },
 
   greater_than: (field, param) => {
@@ -126,18 +110,6 @@ let hooks = {
     }
 
     return parseFloat(field.value) < parseFloat(param);
-  },
-
-  alpha: field => {
-    return defaults.regex.alphaRegex.test(field.value);
-  },
-
-  alpha_numeric: field => {
-    return defaults.regex.alphaNumericRegex.test(field.value);
-  },
-
-  alpha_dash: field => {
-    return defaults.regex.alphaDashRegex.test(field.value);
   },
 
   numeric: field => {
@@ -362,7 +334,7 @@ let hooks = {
   },
 
   uk_postcode: field => {
-    const postcode = field.value.replace(/\s/g, '')
+    const postcode = field.value.replace(/\s/g, "");
 
     if (postcode.length > 7 || postcode.length < 5) {
       return false;

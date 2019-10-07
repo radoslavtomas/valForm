@@ -15,7 +15,7 @@ import defaults from "./_defaults";
  * @param field | {HTMLElement}
  * @returns Element
  */
-function getAppendAfterElement (field) {
+function getAppendAfterElement(field) {
   // check siblings
   let sibling = checkSiblings(field);
 
@@ -38,7 +38,7 @@ function getAppendAfterElement (field) {
   } else {
     return getAppendAfterElement(field.parentNode);
   }
-};
+}
 
 /**
  * @private
@@ -47,7 +47,7 @@ function getAppendAfterElement (field) {
  * @param element | {HTMLElement}
  * @returns {Array}
  */
-function getSiblings (element) {
+function getSiblings(element) {
   let siblings = [];
   let sibling = element.parentNode.firstChild;
 
@@ -59,7 +59,7 @@ function getSiblings (element) {
   }
 
   return siblings;
-};
+}
 
 /**
  * @private
@@ -68,7 +68,7 @@ function getSiblings (element) {
  * @param field | {HTMLElement}
  * @returns Element with a searched class or false
  */
-function checkSiblings (field) {
+function checkSiblings(field) {
   let siblings = getSiblings(field);
 
   if (siblings) {
@@ -80,7 +80,7 @@ function checkSiblings (field) {
   }
 
   return false;
-};
+}
 
 /**
  * @private
@@ -89,7 +89,7 @@ function checkSiblings (field) {
  * @param element | {HTMLElement}
  * @returns Element with a searched class or false
  */
-function checkParent (element) {
+function checkParent(element) {
   let parent = element.parentNode;
 
   if (parent.classList.contains(defaults.form.appendAfter)) {
@@ -97,7 +97,7 @@ function checkParent (element) {
   }
 
   return false;
-};
+}
 
 /**
  * @public
@@ -106,7 +106,7 @@ function checkParent (element) {
  * @param errorElement | {String}
  * @param field | {Object}
  */
-function appendErrorElement (errorElement, field) {
+function appendErrorElement(errorElement, field) {
   if (defaults.form.appendAfter) {
     let fieldEl = document.getElementsByName(field.name)[0];
     let element = getAppendAfterElement(fieldEl);
@@ -124,7 +124,7 @@ function appendErrorElement (errorElement, field) {
       errorElement.appendAfter(document.getElementsByName(field.name)[0]);
     }
   }
-};
+}
 
 /**
  * @public
@@ -133,7 +133,7 @@ function appendErrorElement (errorElement, field) {
  * @param fieldName | {String}
  * @returns HTMLElement
  */
-function createErrorElement (fieldName) {
+function createErrorElement(fieldName) {
   const errorElement = document.createElement(defaults.form.errorElement);
   const cleanFieldName = fieldName.replace(/[^a-z0-9 ,.?!]/gi, ""); // in case we have a name attribute for checkboxes in format "checkbox[]"
   errorElement.setAttribute(
@@ -142,7 +142,7 @@ function createErrorElement (fieldName) {
   );
 
   return errorElement;
-};
+}
 
 const DOMHandlers = {
   createErrorElement: createErrorElement,

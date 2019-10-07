@@ -1,58 +1,35 @@
-import hooks from './../_inc/_validationMethods'
-const postcode = hooks.uk_postcode
+/*
+ * UK_POSTCODE Test
+ * postcodeRegex: /([Gg][Ii][Rr] 0[Aa]{2})|((([A-Za-z][0-9]{1,2})|(([A-Za-z][A-Ha-hJ-Yj-y][0-9]{1,2})|(([A-Za-z][0-9][A-Za-z])|([A-Za-z][A-Ha-hJ-Yj-y][0-9][A-Za-z]?))))\s?[0-9][A-Za-z]{2})/
+ * */
 
-const validField1 = {
-    value: 'B3 3DH'
-}
+import hooks from "./../_inc/_validationMethods";
+const postcode = hooks.uk_postcode;
 
-const validField2 = {
-    value: 'M21 0BN'
-}
+test("uk_postcode: B3 3DH is valid postcode", () => {
+  expect(postcode({ value: "B3 3DH" })).toBeTruthy();
+});
 
-const validField3 = {
-    value: 'B33DH'
-}
+test("uk_postcode: B33DH is valid postcode", () => {
+  expect(postcode({ value: "B33DH" })).toBeTruthy();
+});
 
-const validField4 = {
-    value: 'M210BN'
-}
+test("uk_postcode: M21 0BN is valid postcode", () => {
+  expect(postcode({ value: "M21 0BN" })).toBeTruthy();
+});
 
-const validField5 = {
-    value: 'm210bn'
-}
+test("uk_postcode: M210BN is valid postcode", () => {
+  expect(postcode({ value: "M210BN" })).toBeTruthy();
+});
 
-const invalidField1 = {
-    value: 'M21 0'
-}
+test("uk_postcode: m210bn is valid postcode", () => {
+  expect(postcode({ value: "m210bn" })).toBeTruthy();
+});
 
-const invalidField2 = {
-    value: 'M21 0BNNN'
-}
+test("uk_postcode: M21 0 is NOT valid postcode", () => {
+  expect(postcode({ value: "M21 0" })).toBeFalsy();
+});
 
-test('validate postcode', () => {
-    expect(postcode(validField1)).toBeTruthy()
-})
-
-test('validate postcode 2', () => {
-    expect(postcode(validField2)).toBeTruthy()
-})
-
-test('validate postcode 3', () => {
-    expect(postcode(validField3)).toBeTruthy()
-})
-
-test('validate postcode 4', () => {
-    expect(postcode(validField4)).toBeTruthy()
-})
-
-test('validate postcode 5', () => {
-    expect(postcode(validField5)).toBeTruthy()
-})
-
-test('validate postcode 5', () => {
-    expect(postcode(invalidField1)).toBeFalsy()
-})
-
-test('validate postcode 6', () => {
-    expect(postcode(invalidField2)).toBeFalsy()
-})
+test("uk_postcode: M21 0BNNN is NOT valid postcode", () => {
+  expect(postcode({ value: "M21 0BNNN" })).toBeFalsy();
+});
