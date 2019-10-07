@@ -230,10 +230,23 @@ valForm.addValMethod("async_validation", async (field) => {
 
 #### Validating the whole form
 
-If you want to be in control of the whole validation process you can use "validateForm" method:
+If you want to be in a control of the whole validation process you can use "validateForm" method. Note that this is asynchronous process so it needs to be handled asynchronously, e.g.:
 
 ```javascript
-const check = valForm.validateForm();
+async function handleFormSubmission(event) {
+    // prevent form from submitting
+    event.preventDefault();
+    const formEl = document.getElementById('my_form');    
+
+    const check = await valForm.validateForm();
+    
+    if(check) {
+        formEl.submit();
+    } else {
+        console.log('Form is not valid');
+        // your own logic
+    }
+}
 ```
 
 It will return true if the whole form is valid or false if not.
@@ -245,7 +258,7 @@ If you pass optional boolean parameter (true) it will return an object containin
 There's also a method to partially validate only few fields:
 
 ```javascript
-const check = valForm.partialValidation(["name", "dob"], true);
+const check = await valForm.partialValidation(["name", "dob"], true);
 ```
 
 First parameter is required and can be either string (if it's one field) or array (more fields). This expects name attributes of the fields. Again, optional second parameter controls if the return value is boolean or the object with passed fields' information.
@@ -255,7 +268,7 @@ First parameter is required and can be either string (if it's one field) or arra
 There might be cases when you build your own custom inputs using hidden inputs which should be validated. As the input and change events do not apply to hidden input types you can control this with a helper method:
 
 ```javascript
-const check = valForm.validateHidden(name, value);
+const check = await valForm.validateHidden(name, value);
 ```
 
 This method accepts two parameters - name attribute and the value of an input. For now this method does not accept third parameter to return the the object with field information. (in progress)

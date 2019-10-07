@@ -97,17 +97,17 @@ async function validateField(field, hidden = false) {
  *
  * @param fieldName | {String}
  */
-function validateHidden(name, value) {
+async function validateHidden(name, value) {
   let index = defaults.formFields.findIndex(field => {
     return field.name === name;
   });
 
   defaults.formFields[index].value = value;
 
-  validateField(defaults.formFields[index], true);
+  await validateField(defaults.formFields[index], true);
 
   // re-validate field connected to this one
-  validateWith(defaults.formFields[index].with);
+  await validateWith(defaults.formFields[index].with);
 }
 
 /**
@@ -116,7 +116,7 @@ function validateHidden(name, value) {
  *
  * @param fieldName | {String}
  */
-function validateWith(fieldName) {
+async function validateWith(fieldName) {
   if (fieldName) {
     let validateWith = defaults.formFields.filter(obj => {
       return obj.name === fieldName;
@@ -124,7 +124,7 @@ function validateWith(fieldName) {
 
     // make sure that we only validate after user interacted with the validatedWith field
     if (validateWith.visited) {
-      validateField(validateWith);
+      await validateField(validateWith);
     }
   }
 }
