@@ -1,5 +1,5 @@
-const validationHandlers = require("./_inc/_validationHandlers");
-const formHandlers = require("./_inc/_formHandlers");
+import validationHandlers from "./_inc/_validationHandlers";
+import formHandlers from "./_inc/_formHandlers";
 
 const valForm = {
   init: formHandlers.initializeForm,
@@ -10,4 +10,6 @@ const valForm = {
   addValMessage: validationHandlers.addValMessage
 };
 
-module.exports = valForm;
+export default valForm;
+
+

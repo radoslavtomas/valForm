@@ -1,6 +1,6 @@
-let defaults = require("./_defaults");
-let hooks = require("./_validationMethods");
-let DOMHandlers = require("./_DOMHandlers");
+import defaults from "./_defaults";
+import hooks from "./_validationMethods";
+import DOMHandlers from "./_DOMHandlers";
 
 const createErrorElement = DOMHandlers.createErrorElement;
 const appendErrorElement = DOMHandlers.appendErrorElement;
@@ -19,7 +19,7 @@ const appendErrorElement = DOMHandlers.appendErrorElement;
  * @param hidden | {Boolean}
  * @returns true or false
  */
-const validateField = (field, hidden = false) => {
+async function validateField(field, hidden = false) {
   field.visited = true;
   let fieldElement = document.getElementsByName(field.name)[0];
 
@@ -31,6 +31,7 @@ const validateField = (field, hidden = false) => {
   const oldError = document.querySelector(
     "." + field.name.replace(/[^a-z0-9 ,.?!]/gi, "") + "_error"
   );
+
   if (oldError) {
     oldError.remove();
   }
@@ -57,9 +58,9 @@ const validateField = (field, hidden = false) => {
     if (parts) {
       rule = parts[1];
       param = parts[2];
-      check = hooks[rule](field, param);
+      check = await hooks[rule](field, param);
     } else {
-      check = hooks[rule](field);
+      check = await hooks[rule](field);
     }
 
     if (check === false) {
@@ -88,7 +89,7 @@ const validateField = (field, hidden = false) => {
   dispatchFieldValidationEvent(fieldElement, field.name);
 
   return true;
-};
+}
 
 /**
  * @public
@@ -96,17 +97,18 @@ const validateField = (field, hidden = false) => {
  *
  * @param fieldName | {String}
  */
-const validateHidden = (name, value) => {
+function validateHidden(name, value) {
   let index = defaults.formFields.findIndex(field => {
     return field.name === name;
   });
+
   defaults.formFields[index].value = value;
 
   validateField(defaults.formFields[index], true);
 
   // re-validate field connected to this one
   validateWith(defaults.formFields[index].with);
-};
+}
 
 /**
  * @private
@@ -114,7 +116,7 @@ const validateHidden = (name, value) => {
  *
  * @param fieldName | {String}
  */
-const validateWith = fieldName => {
+function validateWith(fieldName) {
   if (fieldName) {
     let validateWith = defaults.formFields.filter(obj => {
       return obj.name === fieldName;
@@ -125,7 +127,7 @@ const validateWith = fieldName => {
       validateField(validateWith);
     }
   }
-};
+}
 
 /**
  * @private
@@ -136,7 +138,7 @@ const validateWith = fieldName => {
  * @param param | {String}
  * @returns String with an error message
  */
-const getValidationErrorMessage = (rule, fieldName, param = null) => {
+function getValidationErrorMessage(rule, fieldName, param = null) {
   // replace first placeholder in default message
   let errorMessage = defaults.messages[rule].replace("%s", fieldName);
 
@@ -166,7 +168,7 @@ const getValidationErrorMessage = (rule, fieldName, param = null) => {
   }
 
   return errorMessage;
-};
+}
 
 /**
  * @private
@@ -175,11 +177,11 @@ const getValidationErrorMessage = (rule, fieldName, param = null) => {
  * @param element | {HTMLElement}
  * @param fieldName | {String}
  */
-const dispatchFieldValidationEvent = (element, fieldName) => {
+function dispatchFieldValidationEvent(element, fieldName) {
   let fieldData = defaults.formFields.filter(obj => obj.name === fieldName)[0];
   let event = new CustomEvent("validated", { detail: fieldData });
   element.dispatchEvent(event);
-};
+}
 
 /**
  * @public
@@ -191,7 +193,7 @@ const dispatchFieldValidationEvent = (element, fieldName) => {
  * @param returnData | {Boolean}
  * @returns Boolean or data objects for each passed field
  */
-const validatePartially = (args, returnData = false) => {
+function validatePartially(args, returnData = false) {
   if (Array.isArray(args)) {
     return validatePartiallyArray(args, returnData);
   } else if (typeof args === "string") {
@@ -202,7 +204,7 @@ const validatePartially = (args, returnData = false) => {
     );
     return false;
   }
-};
+}
 
 /**
  * @public
@@ -211,13 +213,13 @@ const validatePartially = (args, returnData = false) => {
  * @param returnData
  * @returns Boolean or data objects for each passed field
  */
-const validateForm = (returnData = false) => {
-  // console.log(Object.keys(defaults.formFieldsNames));
-  return validatePartiallyArray(
+async function validateForm(returnData = false) {
+  let check = await validatePartiallyArray(
     Object.keys(defaults.formFieldsNames),
     returnData
   );
-};
+  return check;
+}
 
 /**
  * @private
@@ -229,21 +231,26 @@ const validateForm = (returnData = false) => {
  * @param returnData | {Boolean}
  * @returns Boolean or data objects for each passed field
  */
-const validatePartiallyArray = (arr, returnData) => {
+async function validatePartiallyArray(arr, returnData) {
   let check = returnData ? [] : true;
 
-  for (let fieldName of arr) {
-    let result = validatePartiallyString(fieldName, returnData);
+  let resolvedFinalArray = await Promise.all(
+    arr.map(async field => {
+      const result = await validatePartiallyString(field, returnData);
+      return result;
+    })
+  );
 
-    if (returnData) {
-      check.push(result);
-    } else {
-      check = check && result;
-    }
+  if (returnData) {
+    check = resolvedFinalArray;
+  } else {
+    resolvedFinalArray.forEach(bool => {
+      check = check && bool;
+    });
   }
 
   return check;
-};
+}
 
 /**
  * @private
@@ -255,7 +262,7 @@ const validatePartiallyArray = (arr, returnData) => {
  * @param returnData | {Boolean}
  * @returns Boolean or data objects for each passed field
  */
-const validatePartiallyString = (fieldName, returnData) => {
+async function validatePartiallyString(fieldName, returnData) {
   let index = defaults.formFields.findIndex(field => {
     return field.name === fieldName;
   });
@@ -269,13 +276,14 @@ const validatePartiallyString = (fieldName, returnData) => {
 
   let field = defaults.formFields[index];
 
+  const check = await validateField(field);
+
   if (returnData) {
-    validateField(field);
     return field;
   } else {
-    return validateField(field);
+    return check;
   }
-};
+}
 
 /**
  * @public
@@ -284,9 +292,9 @@ const validatePartiallyString = (fieldName, returnData) => {
  * @param name
  * @param fn
  */
-const addValMethod = (name, fn) => {
+function addValMethod(name, fn) {
   hooks[name] = fn;
-};
+}
 
 /**
  * @public
@@ -295,9 +303,9 @@ const addValMethod = (name, fn) => {
  * @param name
  * @param message
  */
-const addValMessage = (name, message) => {
+function addValMessage(name, message) {
   defaults.messages[name] = message;
-};
+}
 
 /**
  * @private
@@ -305,19 +313,19 @@ const addValMessage = (name, message) => {
  *
  * @param event | {Event}
  */
-const processForm = event => {
+async function processForm(event) {
   event.preventDefault();
 
-  const check = validateForm();
+  const check = await validateForm();
 
   if (check) {
     defaults.formInstance.submit();
   } else {
     // console.log("Not valid yet");
   }
-};
+}
 
-const validationHandlers = {
+let validationHandlers = {
   validateField: validateField,
   validateWith: validateWith,
   validatePartially: validatePartially,
@@ -328,4 +336,4 @@ const validationHandlers = {
   processForm: processForm
 };
 
-module.exports = validationHandlers;
+export default validationHandlers;

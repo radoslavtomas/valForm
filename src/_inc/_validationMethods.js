@@ -1,5 +1,5 @@
-let defaults = require("./_defaults");
-let dateHandlers = require("./_dateHandlers");
+import defaults from "./_defaults";
+import dateHandlers from "./_dateHandlers";
 
 const getDateParts = dateHandlers.getDateParts;
 const getDateInstance = dateHandlers.getDateInstance;
@@ -41,7 +41,7 @@ let hooks = {
       return false;
     }
 
-    return field.value.length >= parseInt(length, 10);
+    return field.value.toString().length >= parseInt(length, 10);
   },
 
   max_length: (field, length) => {
@@ -53,7 +53,7 @@ let hooks = {
       return false;
     }
 
-    return field.value.length <= parseInt(length, 10);
+    return field.value.toString().length <= parseInt(length, 10);
   },
 
   exact_length: (field, length) => {
@@ -65,7 +65,7 @@ let hooks = {
       return false;
     }
 
-    return field.value.length === parseInt(length, 10);
+    return field.value.toString().length === parseInt(length, 10);
   },
 
   greater_than: (field, param) => {
@@ -110,18 +110,6 @@ let hooks = {
     }
 
     return parseFloat(field.value) < parseFloat(param);
-  },
-
-  alpha: field => {
-    return defaults.regex.alphaRegex.test(field.value);
-  },
-
-  alpha_numeric: field => {
-    return defaults.regex.alphaNumericRegex.test(field.value);
-  },
-
-  alpha_dash: field => {
-    return defaults.regex.alphaDashRegex.test(field.value);
   },
 
   numeric: field => {
@@ -346,7 +334,9 @@ let hooks = {
   },
 
   uk_postcode: field => {
-    if (field.value.length > 8 || field.value.length < 6) {
+    const postcode = field.value.replace(/\s/g, "");
+
+    if (postcode.length > 7 || postcode.length < 5) {
       return false;
     }
 
@@ -362,4 +352,4 @@ let hooks = {
   }
 };
 
-module.exports = hooks;
+export default hooks;

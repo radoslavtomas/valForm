@@ -65,11 +65,11 @@ let defaults = {
     ipRegex: /^((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})$/i,
     base64Regex: /[^a-zA-Z0-9\/\+=]/i,
     yearRegex: /^\d{4}$/,
-    postcodeRegex: /[a-z]{1,2}[0-9]{1,2} ?[0-9][a-z]{2}/i,
+    postcodeRegex: /([Gg][Ii][Rr] 0[Aa]{2})|((([A-Za-z][0-9]{1,2})|(([A-Za-z][A-Ha-hJ-Yj-y][0-9]{1,2})|(([A-Za-z][0-9][A-Za-z])|([A-Za-z][A-Ha-hJ-Yj-y][0-9][A-Za-z]?))))\s?[0-9][A-Za-z]{2})/,
     UKPhoneNumberRegex: /^((\+44)|0)( ?[0-9]{3,4}){3}$/i,
     urlRegex: /^((http|https):\/\/(\w+:{0,1}\w*@)?(\S+)|)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?$/,
     dateRegex: /\d{4}-\d{1,2}-\d{1,2}/
   }
 };
 
-module.exports = defaults;
+export default defaults;
