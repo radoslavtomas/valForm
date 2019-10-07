@@ -1,12 +1,12 @@
 ## valForm
 
-valForm is lightweight javascript form validation library (18kb minified, 6kb gzip) inspired by Rick Harrison's validate.js - [http://rickharrison.github.io/validate.js](http://rickharrison.github.io/validate.js).
+valForm is lightweight javascript form validation library (26kb minified, 8kb gzip) inspired by Rick Harrison's validate.js - [http://rickharrison.github.io/validate.js](http://rickharrison.github.io/validate.js).
 
-valForm does not have any dependencies and is fully customizable customizable.
+valForm does not have any dependencies, it's fully customizable and provides some basic validation methods and also tools to easily change/add different methods to your liking and needs. It will also accept asynchronous validation methods.
 
-It aims to be unopinionated about any front-end framework.
+You should not forget about strong server side validation as well!
 
-It uses javascript MutationObserver interface to watch for changes to the DOM which means it will always have fresh state of your form fields even these would be added dynamically.
+valForm uses javascript MutationObserver interface to watch for changes on the DOM which means it will always have fresh state of your form fields even these would be added dynamically.
 
 ### Installation
 
@@ -20,6 +20,7 @@ npm install valform
 import valForm from "valform";
 valForm.init();
 ```
+
 You would want to initialize valForm on the page where you have your form element. Form needs to be in the DOM so if you are using frameworks like react or vue etc. you need to place valForm.init method to respective lifecyle methods (e.g. in react to "componentDidMount()" or in vue to "mounted()").
 
 ### Configuration
@@ -205,6 +206,25 @@ valForm.addValMessage("equals_addition", ""); // removing
 - date_less_than (equals_addition)
 - date_in_past (date_addition)
 - date_in_future (date_addition)
+
+#### Asynchronous validation
+
+In this case the only thing you need to do is to provide an asynchronous validation method that will return a promise, it can look something like this:
+
+```javascript
+valForm.addValMethod("async_validation", async (field) => {
+  return new Promise((resolve, reject) => {
+    try {
+      const data = await fetch(`http://example.com/validate?value=${field.value}`);
+      const result = await data.json();
+      resolve(result.validity);
+    } catch (error) {
+      console.error(error);
+      reject(false);
+    }
+  });
+});
+```
 
 ### Programmatic validation
 
@@ -543,19 +563,14 @@ This is a list of regex used in the library, feel free to change validation meth
 
 ```javascript
 {
-    ruleRegex: /^(.+?)\[(.+)\]$/,
     numericRegex: /^[0-9]+$/,
     integerRegex: /^\-?[0-9]+$/,
     decimalRegex: /^\-?[0-9]*\.?[0-9]+$/,
     emailRegex: /^([a-zA-Z0-9_\-\.\+]+)@((\[[0-2]{1}[0-5]{1}[0-5]{1}\.[0-2]{1}[0-5]{1}[0-5]{1}\.[0-2]{1}[0-5]{1}[0-5]{1}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-2]{1}[0-5]{1}[0-5]{1})(\]?)$/i,
-    alphaRegex: /^[a-z]+$/i,
-    alphaNumericRegex: /^[a-z0-9]+$/i,
-    alphaDashRegex: /^[a-z0-9_\-]+$/i,
     naturalRegex: /^[0-9]+$/i,
     naturalNoZeroRegex: /^[1-9][0-9]*$/i,
     ipRegex: /^((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})$/i,
     base64Regex: /[^a-zA-Z0-9\/\+=]/i,
-    numericDashRegex: /^[\d\-\s]+$/,
     yearRegex: /^\d{4}$/,
     postcodeRegex: /[a-z]{1,2}[0-9]{1,2} ?[0-9][a-z]{2}/i,
     UKPhoneNumberRegex: /^((\+44)|0)( ?[0-9]{3,4}){3}$/i,
