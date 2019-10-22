@@ -1,12 +1,14 @@
 ## valForm
 
-valForm is lightweight javascript form validation library (26kb minified, 8kb gzip) inspired by Rick Harrison's validate.js - [http://rickharrison.github.io/validate.js](http://rickharrison.github.io/validate.js).
+valForm is lightweight javascript form validation library (26kb minified, 8kb gzip). It doesn't have any dependencies, it's fully customizable and provides some basic validation methods and also tools to easily change/add different methods to your liking and needs. 
 
-valForm does not have any dependencies, it's fully customizable and provides some basic validation methods and also tools to easily change/add different methods to your liking and needs. It will also accept asynchronous validation methods.
-
-You should not forget about strong server side validation as well!
+It will also accept asynchronous validation methods.
 
 valForm uses javascript MutationObserver interface to watch for changes on the DOM which means it will always have fresh state of your form fields even these would be added dynamically.
+
+See demo and full documentation [here](https://valformjs.com/demo).
+
+You should though never forget about strong server side validation as well!
 
 ### Installation
 
@@ -109,9 +111,7 @@ const valConfig = {
 valForm.init(valConfig);
 ```
 
-**formId**: this might be useful if you need to handle more than one form on a page, e.g. you have main form with several fields and then small one for newsletter subscription. In that case you can specify which form shall be handled when submit button is pressed. **NB:** _You can handle validation programmatically..._
-
-@TODO: link to programmatic way
+**formId**: this might be useful if you need to handle more than one form on a page, e.g. you have main form with several fields and then small one for newsletter subscription. In that case you can specify which form shall be handled when submit button is pressed. **NB:** _You can handle validation programmatically...
 
 **validationErrorClass**: by default it's "val--error",
 
@@ -121,7 +121,7 @@ valForm.init(valConfig);
 
 **appendAfter**: class of an element after which should be errorElement appended. By default error element will come staright after input field,
 
-**dateFormat**: specify which date format you are using, by default it's 'mm/dd/YYYY', available ones are:
+**dateFormat**: specify which date format you are using, by default it's 'dd/mm/YYYY', available ones are:
 
 ```javascript
 "dd/mm/YYYY", "YYYY-mm-dd", "mm/dd/YYYY", "isoDateTime";
@@ -236,10 +236,10 @@ If you want to be in a control of the whole validation process you can use "vali
 async function handleFormSubmission(event) {
     // prevent form from submitting
     event.preventDefault();
-    const formEl = document.getElementById('my_form');    
+    const formEl = document.getElementById('my_form');
 
     const check = await valForm.validateForm();
-    
+
     if(check) {
         formEl.submit();
     } else {
