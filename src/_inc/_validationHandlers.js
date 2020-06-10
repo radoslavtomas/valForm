@@ -19,9 +19,13 @@ const appendErrorElement = DOMHandlers.appendErrorElement;
  * @param hidden | {Boolean}
  * @returns true or false
  */
-async function validateField(field, hidden = false) {
+async function validateField(field, formIndex, hidden = false) {
+  const formId = defaults.formInstances[formIndex].formId;
   field.visited = true;
-  let fieldElement = document.getElementsByName(field.name)[0];
+
+  let fieldElement = document.querySelector(
+    `#${formId} input[name='${field.name}']`
+  );
 
   if (!hidden) {
     field.value = fieldElement.value;
@@ -29,22 +33,22 @@ async function validateField(field, hidden = false) {
 
   // clear old error message
   const oldError = document.querySelector(
-    "." + field.name.replace(/[^a-z0-9 ,.?!]/gi, "") + "_error"
+    `#${formId} .${field.name.replace(/[^a-z0-9 ,.?!]/gi, "")}_error`
   );
 
   if (oldError) {
     oldError.remove();
   }
 
-  fieldElement.classList.remove(defaults.form.validationValidClass);
-  fieldElement.classList.remove(defaults.form.validationErrorClass);
+  fieldElement.classList.remove(defaults.form_config.validationValidClass);
+  fieldElement.classList.remove(defaults.form_config.validationErrorClass);
 
   if (!field.value && field.allowEmpty === true) {
     field.valid = true;
     field.error = null;
-    // setFieldValidationClass(fieldElement, defaults.form.validationValidClass);
-    fieldElement.classList.add(defaults.form.validationValidClass);
-    dispatchFieldValidationEvent(fieldElement, field.name);
+    // setFieldValidationClass(fieldElement, defaults.form_config.validationValidClass);
+    fieldElement.classList.add(defaults.form_config.validationValidClass);
+    dispatchFieldValidationEvent(fieldElement, field.name, formIndex);
 
     return true;
   }
@@ -70,13 +74,14 @@ async function validateField(field, hidden = false) {
       errorElement.textContent = field.error = getValidationErrorMessage(
         rule,
         field.display,
+        formIndex,
         param
       );
 
-      appendErrorElement(errorElement, field);
+      appendErrorElement(errorElement, field, fieldElement);
 
-      fieldElement.classList.add(defaults.form.validationErrorClass);
-      dispatchFieldValidationEvent(fieldElement, field.name);
+      fieldElement.classList.add(defaults.form_config.validationErrorClass);
+      dispatchFieldValidationEvent(fieldElement, field.name, formIndex);
 
       return false;
     }
@@ -84,9 +89,9 @@ async function validateField(field, hidden = false) {
 
   field.valid = true;
   field.error = null;
-  // setFieldValidationClass(fieldElement, defaults.form.validationValidClass, 'remove');
-  fieldElement.classList.add(defaults.form.validationValidClass);
-  dispatchFieldValidationEvent(fieldElement, field.name);
+  // setFieldValidationClass(fieldElement, defaults.form_config.validationValidClass, 'remove');
+  fieldElement.classList.add(defaults.form_config.validationValidClass);
+  dispatchFieldValidationEvent(fieldElement, field.name, formIndex);
 
   return true;
 }
@@ -95,19 +100,32 @@ async function validateField(field, hidden = false) {
  * @public
  * Validate hidden field
  *
- * @param fieldName | {String}
+ * @param name | {String}
+ * @param value | {mixed}
+ * @param formId | {String}
  */
-async function validateHidden(name, value) {
-  let index = defaults.formFields.findIndex(field => {
+async function validateHidden(name, value, formId) {
+  const formIndex = defaults.formInstances.findIndex(
+    obj => obj.formId === formId
+  );
+
+  let index = defaults.formInstances[formIndex].fields.findIndex(field => {
     return field.name === name;
   });
 
-  defaults.formFields[index].value = value;
+  defaults.formInstances[formIndex].fields[index].value = value;
 
-  await validateField(defaults.formFields[index], true);
+  await validateField(
+    defaults.formInstances[formIndex].fields[index],
+    formIndex,
+    true
+  );
 
   // re-validate field connected to this one
-  await validateWith(defaults.formFields[index].with);
+  await validateWith(
+    defaults.formInstances[formIndex].fields[index].with,
+    formIndex
+  );
 }
 
 /**
@@ -116,15 +134,15 @@ async function validateHidden(name, value) {
  *
  * @param fieldName | {String}
  */
-async function validateWith(fieldName) {
+async function validateWith(fieldName, formIndex) {
   if (fieldName) {
-    let validateWith = defaults.formFields.filter(obj => {
+    let validateWith = defaults.formInstances[formIndex].fields.filter(obj => {
       return obj.name === fieldName;
     })[0];
 
     // make sure that we only validate after user interacted with the validatedWith field
     if (validateWith.visited) {
-      await validateField(validateWith);
+      await validateField(validateWith, formIndex);
     }
   }
 }
@@ -138,7 +156,7 @@ async function validateWith(fieldName) {
  * @param param | {String}
  * @returns String with an error message
  */
-function getValidationErrorMessage(rule, fieldName, param = null) {
+function getValidationErrorMessage(rule, fieldName, formIndex, param = null) {
   // replace first placeholder in default message
   let errorMessage = defaults.messages[rule].replace("%s", fieldName);
 
@@ -150,16 +168,17 @@ function getValidationErrorMessage(rule, fieldName, param = null) {
       errorMessage = errorMessage.replace("%s", split[1]);
       errorMessage = errorMessage.replace(
         "%s",
-        defaults.formFieldsNames[split[0]]
+        defaults.formInstances[formIndex].fieldNames[split[0]]
       );
     } else {
       if (
-        Object.keys(defaults.formFieldsNames).indexOf(param.replace("=", "")) >=
-        0
+        Object.keys(defaults.formInstances[formIndex].fieldNames).indexOf(
+          param.replace("=", "")
+        ) >= 0
       ) {
         errorMessage = errorMessage.replace(
           "%s",
-          defaults.formFieldsNames[param.replace("=", "")]
+          defaults.formInstances[formIndex].fieldNames[param.replace("=", "")]
         );
       } else {
         errorMessage = errorMessage.replace("%s", param.replace("=", ""));
@@ -177,8 +196,10 @@ function getValidationErrorMessage(rule, fieldName, param = null) {
  * @param element | {HTMLElement}
  * @param fieldName | {String}
  */
-function dispatchFieldValidationEvent(element, fieldName) {
-  let fieldData = defaults.formFields.filter(obj => obj.name === fieldName)[0];
+function dispatchFieldValidationEvent(element, fieldName, formIndex) {
+  let fieldData = defaults.formInstances[formIndex].fields.filter(
+    obj => obj.name === fieldName
+  )[0];
   let event = new CustomEvent("validated", { detail: fieldData });
   element.dispatchEvent(event);
 }
@@ -213,9 +234,14 @@ function validatePartially(args, returnData = false) {
  * @param returnData
  * @returns Boolean or data objects for each passed field
  */
-async function validateForm(returnData = false) {
+async function validateForm(formId, returnData = false) {
+  const formIndex = defaults.formInstances.findIndex(
+    obj => obj.formId === formId
+  );
+
   let check = await validatePartiallyArray(
-    Object.keys(defaults.formFieldsNames),
+    Object.keys(defaults.formInstances[formIndex].fieldNames),
+    formIndex,
     returnData
   );
   return check;
@@ -231,12 +257,16 @@ async function validateForm(returnData = false) {
  * @param returnData | {Boolean}
  * @returns Boolean or data objects for each passed field
  */
-async function validatePartiallyArray(arr, returnData) {
+async function validatePartiallyArray(arr, formIndex, returnData) {
   let check = returnData ? [] : true;
 
   let resolvedFinalArray = await Promise.all(
     arr.map(async field => {
-      const result = await validatePartiallyString(field, returnData);
+      const result = await validatePartiallyString(
+        field,
+        formIndex,
+        returnData
+      );
       return result;
     })
   );
@@ -262,8 +292,8 @@ async function validatePartiallyArray(arr, returnData) {
  * @param returnData | {Boolean}
  * @returns Boolean or data objects for each passed field
  */
-async function validatePartiallyString(fieldName, returnData) {
-  let index = defaults.formFields.findIndex(field => {
+async function validatePartiallyString(fieldName, formIndex, returnData) {
+  let index = defaults.formInstances[formIndex].fields.findIndex(field => {
     return field.name === fieldName;
   });
 
@@ -274,9 +304,9 @@ async function validatePartiallyString(fieldName, returnData) {
     return false;
   }
 
-  let field = defaults.formFields[index];
+  let field = defaults.formInstances[formIndex].fields[index];
 
-  const check = await validateField(field);
+  const check = await validateField(field, formIndex);
 
   if (returnData) {
     return field;
@@ -313,15 +343,21 @@ function addValMessage(name, message) {
  *
  * @param event | {Event}
  */
-async function processForm(event) {
+async function processForm(formId, event) {
   event.preventDefault();
 
-  const check = await validateForm();
+  const check = await validateForm(formId);
+  const index = defaults.formInstances.findIndex(obj => obj.formId === formId);
 
   if (check) {
-    defaults.formInstance.submit();
+    defaults.formInstances[index].form.submit();
   } else {
-    // console.log("Not valid yet");
+    console.warn(
+      `#${defaults.formInstances[index].formId} form has fields that are not valid.`
+    );
+    return {
+      error: `#${defaults.formInstances[index].formId} form has fields that are not valid.`
+    };
   }
 }
 

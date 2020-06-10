@@ -1,9 +1,11 @@
 import defaults from "./_defaults";
 import validationHandlers from "./_validationHandlers";
+import DOMHandlers from "./_DOMHandlers";
 
 const validateField = validationHandlers.validateField;
 const validateWith = validationHandlers.validateWith;
 const processForm = validationHandlers.processForm;
+const getNearestForm = DOMHandlers.getNearestForm;
 
 /**
  * @public
@@ -11,18 +13,37 @@ const processForm = validationHandlers.processForm;
  *
  * @param args | {Object}
  */
-function initializeForm(args = null) {
-  defaults.form = { ...defaults.form, ...args };
-  let form = getFormInstance(defaults.form.formId);
+function initializeForm(args) {
+  if (!args) {
+    console.warn(
+      'valForm requires config object with at least "formID" element to work with.'
+    );
+    return false;
+  }
+
+  if (!args.formId) {
+    console.warn('valForm requires "formID" element to work with.');
+    return false;
+  }
+
+  defaults.form_config = { ...defaults.form_config, ...args };
+  let form = getFormInstance(args.formId);
 
   if (!form) {
     console.warn("No form element found on the page.");
     return false;
   }
 
-  defaults.formInstance = getFormInstance(defaults.form.formId);
-  defaults.formFields = createAllFields();
-  defaults.formFieldsNames = getFormFieldsNames();
+  const formId = args.formId;
+  const fields = createAllFields(args.formId);
+  const fieldNames = getFormFieldsNames(fields);
+
+  defaults.formInstances.push({
+    formId,
+    form,
+    fields,
+    fieldNames
+  });
 }
 
 /**
@@ -33,17 +54,15 @@ function initializeForm(args = null) {
  * @returns Form instance
  */
 function getFormInstance(formId) {
-  let form = formId
-    ? document.getElementById(formId)
-    : document.querySelector("form");
+  let form = document.getElementById(formId);
 
   if (!form) {
     return false;
   }
 
-  form.addEventListener("submit", processForm);
+  form.addEventListener("submit", processForm.bind(this, formId));
 
-  attachDOMObserver(form);
+  attachDOMObserver(form, formId);
 
   return form;
 }
@@ -55,27 +74,46 @@ function getFormInstance(formId) {
  *
  * @param form | {HTMLElement}
  */
-function attachDOMObserver(form) {
+function attachDOMObserver(form, formId) {
   // Options for the observer (which mutations to observe)
   let mutationConfig = { attributes: false, childList: true, subtree: true };
+
   // Create an observer instance linked to the callback function
-  defaults.DOMObserver = new MutationObserver(mutationCallback);
+  const newObserver = {
+    formId,
+    observer: new MutationObserver(mutationCallback(formId))
+  };
+
   // Start observing the target node for configured mutations
-  defaults.DOMObserver.observe(form, mutationConfig);
+  newObserver.observer.observe(form, mutationConfig);
+
+  defaults.DOMObservers.push(newObserver);
 }
 
 /**
  * @private
  * Callback function to execute when mutations are observed
  *
- * @param mutationsList
- * @param observer
+ * @param formId
  */
-function mutationCallback(mutationsList, observer) {
-  // console.log('DOM has changed');
-  let newFields = createAllFields();
-  defaults.formFields = mergedArrays(defaults.formFields, newFields);
-  defaults.formFieldsNames = getFormFieldsNames();
+function mutationCallback(formId) {
+  return function () {
+    // console.log('DOM has changed');
+    let newFields = createAllFields(formId);
+
+    const index = defaults.formInstances.findIndex(
+      obj => obj.formId === formId
+    );
+
+    defaults.formInstances[index].fields = mergedArrays(
+      defaults.formInstances[index].fields,
+      newFields
+    );
+
+    defaults.formInstances[index].fieldNames = getFormFieldsNames(
+      defaults.formInstances[index].fields
+    );
+  };
 }
 
 /**
@@ -125,10 +163,10 @@ function mergedArrays(formFields, newFields) {
  *
  * @returns Object of field names with name attributes as keys
  */
-function getFormFieldsNames() {
+function getFormFieldsNames(fields) {
   let names = {};
 
-  for (let obj of defaults.formFields) {
+  for (let obj of fields) {
     names[obj.name] = obj.display;
   }
 
@@ -141,17 +179,11 @@ function getFormFieldsNames() {
  *
  * @returns Array of all form fields
  */
-function createAllFields() {
+function createAllFields(formId) {
   let formFields = [];
   let fieldNodeList = null;
 
-  if (defaults.form.formId) {
-    fieldNodeList = document.querySelectorAll(
-      `#${defaults.form.formId} [data-val-rules]`
-    );
-  } else {
-    fieldNodeList = document.querySelectorAll("[data-val-rules]");
-  }
+  fieldNodeList = document.querySelectorAll(`#${formId} [data-val-rules]`);
 
   if (!fieldNodeList) {
     console.warn("No fields for validation defined");
@@ -232,10 +264,17 @@ function addField(field) {
  * @private
  * Process field chang
  *
- * @param event | {Event}
+ * @param formId | {string}
  */
 function fieldChanged(event) {
-  let index = defaults.formFields.findIndex(field => {
+  const formElement = getNearestForm(event.target);
+  const formId = formElement.id;
+
+  const formIndex = defaults.formInstances.findIndex(
+    obj => obj.formId === formId
+  );
+
+  let index = defaults.formInstances[formIndex].fields.findIndex(field => {
     return field.name === event.target.name;
   });
 
@@ -244,23 +283,23 @@ function fieldChanged(event) {
       'input[name="' + event.target.name + '"]:checked'
     );
     if (validCheckboxes.length > 0) {
-      defaults.formFields[index].checked = true;
-      defaults.formFields[index].value = [];
+      defaults.formInstances[formIndex].fields[index].checked = true;
+      defaults.formInstances[formIndex].fields[index].value = [];
       for (let box of validCheckboxes) {
-        defaults.formFields[index].value.push(box.value);
+        defaults.formInstances[formIndex].fields[index].value.push(box.value);
       }
     } else {
-      defaults.formFields[index].checked = false;
-      defaults.formFields[index].value = [];
+      defaults.formInstances[formIndex].fields[index].checked = false;
+      defaults.formInstances[formIndex].fields[index].value = [];
     }
   } else {
-    defaults.formFields[index].value = event.target.value;
+    defaults.formInstances[formIndex].fields[index].value = event.target.value;
   }
 
-  validateField(defaults.formFields[index]);
+  validateField(defaults.formInstances[formIndex].fields[index], formIndex);
 
   // re-validate field connected to this one
-  validateWith(defaults.formFields[index].with);
+  validateWith(defaults.formInstances[formIndex].fields[index].with, formIndex);
 }
 
 let formHandlers = {

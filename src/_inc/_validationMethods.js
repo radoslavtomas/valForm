@@ -1,9 +1,24 @@
 import defaults from "./_defaults";
 import dateHandlers from "./_dateHandlers";
+import DOMHandlers from "./_DOMHandlers";
 
 const getDateParts = dateHandlers.getDateParts;
 const getDateInstance = dateHandlers.getDateInstance;
 const calculateDiffInYears = dateHandlers.calculateDiffInYears;
+
+function getFormIndex(fieldName) {
+  const el = document.getElementsByTagName(fieldName);
+
+  if (el.length > 1) {
+    console.warn(
+      `You have more than one elemnt with "${fieldName}" name on the page. Some validation methods might not work correctly.`
+    );
+  }
+  const formElement = DOMHandlers.getNearestForm(el[0]);
+  const formId = formElement.id;
+
+  return defaults.formInstances.findIndex(obj => obj.formId === formId);
+}
 
 /**
  * @public
@@ -21,7 +36,9 @@ let hooks = {
   },
 
   matches: (field, matchName) => {
-    let matchField = defaults.formFields.filter(
+    const formIndex = getFormIndex(matchName);
+
+    let matchField = defaults.formInstances[formIndex].fields.filter(
       obj => obj.name === matchName
     )[0];
 
@@ -209,8 +226,11 @@ let hooks = {
   },
 
   date_greater_than: (field, param) => {
-    let paramField = defaults.formFields.filter(
-      obj => obj.name === param.replace("=", "")
+    const fieldName = param.replace("=", "");
+    const formIndex = getFormIndex(fieldName);
+
+    let paramField = defaults.formInstances[formIndex].fields.filter(
+      obj => obj.name === fieldName
     )[0];
 
     if (!paramField.visited || !paramField.value) {
@@ -238,8 +258,11 @@ let hooks = {
   },
 
   date_less_than: (field, param) => {
-    let paramField = defaults.formFields.filter(
-      obj => obj.name === param.replace("=", "")
+    const fieldName = param.replace("=", "");
+    const formIndex = getFormIndex(fieldName);
+
+    let paramField = defaults.formInstances[formIndex].fields.filter(
+      obj => obj.name === fieldName
     )[0];
 
     if (!paramField.visited || !paramField.value) {
@@ -298,7 +321,9 @@ let hooks = {
     }
 
     const fieldAgainst = paramSplit[0];
-    const fieldAgainstData = defaults.formFields.filter(
+    const formIndex = getFormIndex(fieldAgainst);
+
+    const fieldAgainstData = defaults.formInstances[formIndex].fields.filter(
       obj => obj.name === fieldAgainst
     )[0];
 

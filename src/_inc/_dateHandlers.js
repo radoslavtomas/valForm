@@ -42,7 +42,7 @@ function createDateParts(date, delimiter, order, regex) {
  * @returns Object with day, month and year values
  */
 function getDateParts(date) {
-  const dateFormat = defaults.form.dateFormat;
+  const dateFormat = defaults.form_config.dateFormat;
 
   if (defaults.supportedDateFormats.indexOf(dateFormat) < 0) {
     console.error("Date format not recognised.");
@@ -90,12 +90,7 @@ function calculateDiffInYears(date1, date2) {
     return false;
   }
 
-  if (
-    years
-      .toString()
-      .split(".")[1]
-      .startsWith("999")
-  ) {
+  if (years.toString().split(".")[1].startsWith("999")) {
     return Math.ceil(years);
   }
   return diff / (1000 * 60 * 60 * 24 * 365.2422);

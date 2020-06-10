@@ -3,7 +3,7 @@ import defaults from "./_defaults";
 /**
  * Custom "appendAfter" function to be able to append new elements to DOM
  */
-(Element.prototype.appendAfter = function(element) {
+(Element.prototype.appendAfter = function (element) {
   element.parentNode.insertBefore(this, element.nextSibling);
 }),
   false;
@@ -73,7 +73,7 @@ function checkSiblings(field) {
 
   if (siblings) {
     for (let sibling of siblings) {
-      if (sibling.classList.contains(defaults.form.appendAfter)) {
+      if (sibling.classList.contains(defaults.form_config.appendAfter)) {
         return sibling;
       }
     }
@@ -92,7 +92,7 @@ function checkSiblings(field) {
 function checkParent(element) {
   let parent = element.parentNode;
 
-  if (parent.classList.contains(defaults.form.appendAfter)) {
+  if (parent.classList.contains(defaults.form_config.appendAfter)) {
     return parent;
   }
 
@@ -106,9 +106,8 @@ function checkParent(element) {
  * @param errorElement | {String}
  * @param field | {Object}
  */
-function appendErrorElement(errorElement, field) {
-  if (defaults.form.appendAfter) {
-    let fieldEl = document.getElementsByName(field.name)[0];
+function appendErrorElement(errorElement, field, fieldEl) {
+  if (defaults.form_config.appendAfter) {
     let element = getAppendAfterElement(fieldEl);
 
     if (element) {
@@ -117,11 +116,9 @@ function appendErrorElement(errorElement, field) {
   } else {
     // if it's checkbox or radio input find parent element
     if (field.type === "checkbox" || field.type === "radio") {
-      errorElement.appendAfter(
-        document.getElementsByName(field.name)[0].parentNode
-      );
+      errorElement.appendAfter(fieldEl.parentNode);
     } else {
-      errorElement.appendAfter(document.getElementsByName(field.name)[0]);
+      errorElement.appendAfter(fieldEl);
     }
   }
 }
@@ -134,19 +131,39 @@ function appendErrorElement(errorElement, field) {
  * @returns HTMLElement
  */
 function createErrorElement(fieldName) {
-  const errorElement = document.createElement(defaults.form.errorElement);
+  const errorElement = document.createElement(
+    defaults.form_config.errorElement
+  );
   const cleanFieldName = fieldName.replace(/[^a-z0-9 ,.?!]/gi, ""); // in case we have a name attribute for checkboxes in format "checkbox[]"
   errorElement.setAttribute(
     "class",
-    `${defaults.form.validationErrorClass} ${cleanFieldName}_error`
+    `${defaults.form_config.validationErrorClass} ${cleanFieldName}_error`
   );
 
   return errorElement;
 }
 
+/**
+ * @public
+ * Get the nearest parent form
+ *
+ * @param element | {HTMLElement}
+ * @returns HTMLElement
+ */
+function getNearestForm(element) {
+  let parent = element.parentNode;
+
+  if (parent.nodeName === "FORM") {
+    return parent;
+  } else {
+    return getNearestForm(parent);
+  }
+}
+
 const DOMHandlers = {
   createErrorElement: createErrorElement,
-  appendErrorElement: appendErrorElement
+  appendErrorElement: appendErrorElement,
+  getNearestForm: getNearestForm
 };
 
 export default DOMHandlers;

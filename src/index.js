@@ -11,5 +11,3 @@ const valForm = {
 };
 
 export default valForm;
-
-
