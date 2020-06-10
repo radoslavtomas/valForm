@@ -221,7 +221,7 @@ function validatePartially(args, formIndex, returnData = false) {
   if (formList.length > 1 && formIndex === undefined) {
     let i = 0;
     let str = "";
-    formList.forEach(form => {
+    Array.from(formList).forEach(form => {
       str = str + `Form: #${form.id} - Index: ${i}\n`;
       i++;
     });
