@@ -211,14 +211,33 @@ function dispatchFieldValidationEvent(element, fieldName, formIndex) {
  * If returnData is true then the array of fields will be returned
  *
  * @param args | {String || Array}
+ * @param formIndex | {Number}
  * @param returnData | {Boolean}
  * @returns Boolean or data objects for each passed field
  */
-function validatePartially(args, returnData = false) {
+function validatePartially(args, formIndex, returnData = false) {
+  const formList = document.getElementsByTagName("form");
+
+  if (formList.length > 1 && formIndex === undefined) {
+    let i = 0;
+    let str = "";
+    formList.forEach(form => {
+      str = str + `Form: #${form.id} - Index: ${i}\n`;
+      i++;
+    });
+    console.warn(
+      `Partial validation: two or more forms on the page.\n\nPlease use form index as a second argument to identify correct form:\n\n${str}`
+    );
+  }
+
+  if (formIndex === undefined) {
+    formIndex = 0;
+  }
+
   if (Array.isArray(args)) {
-    return validatePartiallyArray(args, returnData);
+    return validatePartiallyArray(args, formIndex, returnData);
   } else if (typeof args === "string") {
-    return validatePartiallyString(args, returnData);
+    return validatePartiallyString(args, formIndex, returnData);
   } else {
     console.error(
       "Passed argument in partialValidation method must be of type string or array."
