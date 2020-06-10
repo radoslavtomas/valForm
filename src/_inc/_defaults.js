@@ -3,7 +3,7 @@
  * All defaults including messages & regex patterns
  */
 let defaults = {
-  form: {
+  form_config: {
     formId: "",
     validationErrorClass: "val--error",
     validationValidClass: "val--valid",
@@ -11,10 +11,8 @@ let defaults = {
     appendAfter: null,
     dateFormat: "dd/mm/YYYY"
   },
-  formInstance: null,
-  formFields: [],
-  formFieldsNames: {},
-  DOMObserver: null,
+  formInstances: [],
+  DOMObservers: [],
   supportedDateFormats: [
     "dd/mm/YYYY",
     "YYYY-mm-dd",
