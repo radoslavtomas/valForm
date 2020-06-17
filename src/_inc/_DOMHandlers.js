@@ -148,13 +148,18 @@ function createErrorElement(fieldName) {
  * Get the nearest parent form
  *
  * @param element | {HTMLElement}
- * @returns HTMLElement
+ * @returns HTMLElement|Boolean
  */
 function getNearestForm(element) {
   let parent = element.parentNode;
 
   if (parent.nodeName === "FORM") {
     return parent;
+  } else if (parent.nodeName === "BODY") {
+      console.warn(
+          "valForm validation broken. No form parent element found on the page."
+      );
+      return false;
   } else {
     return getNearestForm(parent);
   }

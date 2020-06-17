@@ -24,7 +24,7 @@ async function validateField(field, formIndex, hidden = false) {
   field.visited = true;
 
   let fieldElement = document.querySelector(
-    `#${formId} input[name='${field.name}']`
+    `#${formId} [name='${field.name}']`
   );
 
   if (!hidden) {
