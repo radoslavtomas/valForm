@@ -7,7 +7,7 @@ const getDateInstance = dateHandlers.getDateInstance;
 const calculateDiffInYears = dateHandlers.calculateDiffInYears;
 
 function getFormIndex(fieldName) {
-  const el = document.getElementsByTagName(fieldName);
+  const el = document.getElementsByName(fieldName);
 
   if (el.length > 1) {
     console.warn(
