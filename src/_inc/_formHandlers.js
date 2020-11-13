@@ -145,11 +145,8 @@ function mergedArrays(formFields, newFields) {
 
     if (objToPush1 && objToPush2) {
       mergedArr.push(objToPush1);
-    } else {
-      // ... and if the length is greater that length of array of old IDs then add it
-      if (nameArrOld.length < nameArrNew.length) {
+    } else if(!objToPush1 && objToPush2) {
         mergedArr.push(objToPush2);
-      }
     }
   }
 
