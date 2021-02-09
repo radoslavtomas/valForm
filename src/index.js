@@ -3,6 +3,7 @@ import formHandlers from "./_inc/_formHandlers";
 
 const valForm = {
   init: formHandlers.initializeForm,
+  destroyForm: formHandlers.destroyForm,
   partialValidation: validationHandlers.validatePartially,
   validateForm: validationHandlers.validateForm,
   validateHidden: validationHandlers.validateHidden,

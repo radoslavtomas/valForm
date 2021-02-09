@@ -47,6 +47,23 @@ function initializeForm(args) {
 }
 
 /**
+* @public
+* Destroy form if it's no longer needed
+*
+* @param args | {Object}
+*/
+
+function destroyForm(formId) {
+    const index = defaults.formInstances.findIndex(
+        obj => obj.formId === formId
+    );
+
+    defaults.formInstances.splice(index, 1);
+
+    return true;
+}
+
+/**
  * @private
  * Get form instance and add listener
  *
@@ -300,7 +317,8 @@ function fieldChanged(event) {
 }
 
 let formHandlers = {
-  initializeForm: initializeForm
+  initializeForm,
+  destroyForm
 };
 
 export default formHandlers;
