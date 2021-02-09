@@ -253,13 +253,19 @@ function validatePartially(args, formIndex, returnData = false) {
  * @param returnData
  * @returns Boolean or data objects for each passed field
  */
-async function validateForm(formId, returnData = false) {
+async function validateForm(formId, returnData = false, except = []) {
   const formIndex = defaults.formInstances.findIndex(
     obj => obj.formId === formId
   );
 
+  let arrayToValidate = Object.keys(defaults.formInstances[formIndex].fieldNames);
+
+  if(except.length > 0) {
+    arrayToValidate = arrayToValidate.filter(item => !except.includes(item))
+  }
+
   let check = await validatePartiallyArray(
-    Object.keys(defaults.formInstances[formIndex].fieldNames),
+    arrayToValidate,
     formIndex,
     returnData
   );
