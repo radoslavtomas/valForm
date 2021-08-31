@@ -291,9 +291,7 @@ let hooks = {
 
   valid_date: field => {
     const dateParts = getDateParts(field.value);
-    const date = new Date(
-      `${dateParts.year}-${dateParts.month}-${dateParts.day} 00:00`
-    );
+    const date = getDateInstance(field.value);
     const isValid = Boolean(+date) && date.getDate() == dateParts.day;
 
     return isValid;

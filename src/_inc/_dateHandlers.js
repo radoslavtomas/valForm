@@ -106,7 +106,7 @@ function calculateDiffInYears(date1, date2) {
 function getDateInstance(date) {
   const dateParts = getDateParts(date);
   const dateInstance = new Date(
-    `${dateParts.year}-${dateParts.month}-${dateParts.day} 00:00`
+    `${dateParts.year}/${dateParts.month}/${dateParts.day} 00:00`
   );
   return dateInstance;
 }
